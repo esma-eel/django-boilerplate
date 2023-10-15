@@ -32,3 +32,11 @@ python manage.py cmdname --settings=config.settings.local
 ## Create app
 mkdir ./boilerplate/appname
 django-admin startapp appname ./boilerplate/appname
+
+add codes below to apps.py
+
+    name = "boilerplate.appname"
+    verbose_name = _("Appname")
+
+    def ready(self):
+        pass
