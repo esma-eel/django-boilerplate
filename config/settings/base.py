@@ -13,8 +13,18 @@ Settings common to all instances of the
 project
 """
 import os
+import environ
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+
+# Take environment variables from .env file
+env = environ.Env(SECRET_KEY=(str, "default"))
+environ.Env.read_env(os.path.join(BASE_DIR / "config" / ".envs", ".env"))
 
 
 def get_env_variable(var_name):
@@ -22,15 +32,11 @@ def get_env_variable(var_name):
     Get environment variable or return exception
     """
     try:
-        return os.environ[var_name]
+        # return os.environ[var_name]
+        return env(var_name)
     except KeyError:
         error_msg = f"Set the {var_name} ENV variable."
         raise ImproperlyConfigured(error_msg)
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-print(BASE_DIR)
 
 
 # Quick-start development settings - unsuitable for production
@@ -104,7 +110,10 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": (
