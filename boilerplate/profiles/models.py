@@ -8,6 +8,7 @@ from .utils.upload_path import profile_upload
 class ProfileEmail(ModelMixin):
     email = models.EmailField(_("Email"), unique=True)
     is_primary = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
 
     profile = models.ForeignKey(
         "profiles.Profile", on_delete=models.CASCADE, related_name="email_set"
@@ -20,6 +21,7 @@ class ProfileEmail(ModelMixin):
 class ProfilePhoneNumber(ModelMixin):
     number = models.CharField(_("Number"), max_length=11, unique=True)
     is_primary = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
 
     profile = models.ForeignKey(
         "profiles.Profile",
@@ -34,6 +36,7 @@ class ProfilePhoneNumber(ModelMixin):
 class ProfileAddress(ModelMixin):
     city = models.CharField(_("City"), max_length=32, blank=True, null=True)
     address = models.TextField(_("Address"))
+    is_primary = models.BooleanField(default=False)
 
     profile = models.ForeignKey(
         "profiles.Profile",
