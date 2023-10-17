@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     # boilerplate
     "boilerplate.users",
     "boilerplate.profiles",
+    "boilerplate.authentication",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -197,7 +198,9 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",
     "DEFAULT_VERSIONING_CLASS": None,
-    "DEFAULT_PAGINATION_CLASS": None,
+    "DEFAULT_PAGINATION_CLASS": (  # None,
+        "rest_framework.pagination.LimitOffsetPagination"
+    ),
     "DEFAULT_FILTER_BACKENDS": [],
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
     "DEFAULT_THROTTLE_RATES": {"user": None, "anon": None},
@@ -275,8 +278,8 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 
 # SIMPLE JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),  # timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
@@ -292,7 +295,10 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+    "USER_AUTHENTICATION_RULE": (
+        "rest_framework_simplejwt.authentication"
+        ".default_user_authentication_rule"
+    ),
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
