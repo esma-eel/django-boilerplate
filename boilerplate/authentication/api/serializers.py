@@ -13,3 +13,8 @@ class PhoneNumberAndPasswordSerializer(serializers.Serializer):
             )
 
         return value
+
+
+class EmailAndPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()

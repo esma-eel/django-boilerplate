@@ -21,4 +21,9 @@ urlpatterns = [
         views.JWTCreateWithPhoneNumberAndPassword.as_view(),
         name="jwt-phone-number-and-password",
     ),
+    path(
+        "jwt/email-and-password/",
+        views.JWTCreateWithEmailAndPassword.as_view(),
+        name="jwt-email-and-password",
+    ),
 ]
