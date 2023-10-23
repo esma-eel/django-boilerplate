@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from boilerplate.common.utils.numbers import ir_phone_number
+from rest_framework_simplejwt.tokens import RefreshToken, SlidingToken
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 
 
 class PhoneNumberAndPasswordSerializer(serializers.Serializer):
@@ -18,3 +20,11 @@ class PhoneNumberAndPasswordSerializer(serializers.Serializer):
 class EmailAndPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+
+class JWTTokenBlacklistSerializer(TokenBlacklistSerializer):
+    token_class = RefreshToken
+
+
+class SlidingTokenBlacklistSerializer(TokenBlacklistSerializer):
+    token_class = SlidingToken

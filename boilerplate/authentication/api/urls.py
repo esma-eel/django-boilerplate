@@ -5,7 +5,7 @@ from . import views
 
 
 urlpatterns = [
-    # simple jwt
+    # JWT
     path(
         "jwt/create/",
         jwt_views.TokenObtainPairView.as_view(),
@@ -14,7 +14,6 @@ urlpatterns = [
     path(
         "jwt/refresh/", jwt_views.TokenRefreshView.as_view(), name="jwt-refresh"
     ),
-    path("jwt/verify/", jwt_views.TokenVerifyView.as_view(), name="jwt-verify"),
     # boilerplate
     path(
         "jwt/phone-number-and-password/",
@@ -25,5 +24,32 @@ urlpatterns = [
         "jwt/email-and-password/",
         views.JWTCreateWithEmailAndPassword.as_view(),
         name="jwt-email-and-password",
+    ),
+    # TOKEN
+    path(
+        "token/create/",
+        jwt_views.TokenObtainSlidingView.as_view(),
+        name="token-create",
+    ),
+    path(
+        "token/refresh/",
+        jwt_views.TokenRefreshSlidingView.as_view(),
+        name="token-refresh",
+    ),
+    path(
+        "token/verify/",
+        jwt_views.TokenVerifyView.as_view(),
+        name="token-verify",
+    ),
+    # blacklist
+    path(
+        "jwt/blacklist/",
+        views.JWTTokenBlacklistView.as_view(),
+        name="jwt-blacklist",
+    ),
+    path(
+        "token/blacklist/",
+        views.SlidingTokenBlacklistView.as_view(),
+        name="token-blacklist",
     ),
 ]

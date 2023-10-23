@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     # 3rd party
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "django_filters",
     "django_extensions",
     "corsheaders",
@@ -282,7 +283,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=2),  # timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
+    "UPDATE_LAST_LOGIN": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": get_env_variable("SECRET_KEY"),
     "VERIFYING_KEY": "",
@@ -299,7 +300,10 @@ SIMPLE_JWT = {
         "rest_framework_simplejwt.authentication"
         ".default_user_authentication_rule"
     ),
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "AUTH_TOKEN_CLASSES": (
+        "rest_framework_simplejwt.tokens.AccessToken",
+        "rest_framework_simplejwt.tokens.SlidingToken",
+    ),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
     "JTI_CLAIM": "jti",
@@ -316,7 +320,9 @@ SIMPLE_JWT = {
         "rest_framework_simplejwt.serializers.TokenVerifySerializer"
     ),
     "TOKEN_BLACKLIST_SERIALIZER": (
-        "rest_framework_simplejwt.serializers.TokenBlacklistSerializer"
+        "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+        # "authentication.api.serializers.JWTTokenBlacklistSerializer",
+        # "authentication.api.serializers.SlidingTokenBlacklistSerializer",
     ),
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": (
         "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer"

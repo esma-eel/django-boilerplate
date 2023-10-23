@@ -40,3 +40,6 @@ add codes below to apps.py
 
     def ready(self):
         pass
+
+## flusth expired tokens
+python manage.py flushexpiredtokens

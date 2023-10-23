@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenBlacklistView
 
 from boilerplate.profiles.models import ProfilePhoneNumber, ProfileEmail
 from .serializers import (
@@ -116,3 +117,16 @@ class JWTCreateWithEmailAndPassword(APIView):
             {"message": "Email or password is wrong"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class JWTTokenBlacklistView(TokenBlacklistView):
+    _serializer_class = (
+        "boilerplate.authentication.api.serializers.JWTTokenBlacklistSerializer"
+    )
+
+
+class SlidingTokenBlacklistView(TokenBlacklistView):
+    _serializer_class = (
+        "boilerplate.authentication.api.serializers"
+        ".SlidingTokenBlacklistSerializer"
+    )
