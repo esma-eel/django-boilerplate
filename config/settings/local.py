@@ -5,7 +5,7 @@ cal development-specific settings include
 DEBUG mode, log level, and activation of
 developer tools like django-debug-toolbar.
 """
-from .base import *
+# from .base import *
 from .production import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
