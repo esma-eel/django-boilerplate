@@ -16,6 +16,7 @@ import os
 import environ
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,9 +52,17 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 3rd party
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "django_filters",
+    "django_extensions",
+    "corsheaders",
     # boilerplate
     "boilerplate.users",
     "boilerplate.profiles",
+    "boilerplate.authentication",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -66,6 +75,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # cors
+    "corsheaders.middleware.CorsMiddleware",
+    # should be on top of common middleware
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -162,3 +174,160 @@ MEDIA_URL = "media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
+
+# REST FRAMEWORK SETTINGS
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.BasicAuthentication",
+        # "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    "DEFAULT_THROTTLE_CLASSES": [],
+    "DEFAULT_CONTENT_NEGOTIATION_CLASS": (
+        "rest_framework.negotiation.DefaultContentNegotiation"
+    ),
+    "DEFAULT_METADATA_CLASS": "rest_framework.metadata.SimpleMetadata",
+    "DEFAULT_VERSIONING_CLASS": None,
+    "DEFAULT_PAGINATION_CLASS": (  # None,
+        "rest_framework.pagination.LimitOffsetPagination"
+    ),
+    "DEFAULT_FILTER_BACKENDS": [],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_RATES": {"user": None, "anon": None},
+    "NUM_PROXIES": None,
+    "PAGE_SIZE": 10,  # None
+    "SEARCH_PARAM": "search",
+    "ORDERING_PARAM": "ordering",
+    "DEFAULT_VERSION": None,
+    "ALLOWED_VERSIONS": None,
+    "VERSION_PARAM": "version",
+    "UNAUTHENTICATED_USER": "django.contrib.auth.models.AnonymousUser",
+    "UNAUTHENTICATED_TOKEN": None,
+    "VIEW_NAME_FUNCTION": "rest_framework.views.get_view_name",
+    "VIEW_DESCRIPTION_FUNCTION": "rest_framework.views.get_view_description",
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
+    "NON_FIELD_ERRORS_KEY": "non_field_errors",
+    "TEST_REQUEST_RENDERER_CLASSES": [
+        "rest_framework.renderers.MultiPartRenderer",
+        "rest_framework.renderers.JSONRenderer",
+    ],
+    "TEST_REQUEST_DEFAULT_FORMAT": "multipart",
+    "URL_FORMAT_OVERRIDE": "format",
+    "FORMAT_SUFFIX_KWARG": "format",
+    "URL_FIELD_NAME": "url",
+    "DATE_FORMAT": "iso-8601",
+    "DATE_INPUT_FORMATS": ["iso-8601"],
+    "DATETIME_FORMAT": "iso-8601",
+    "DATETIME_INPUT_FORMATS": ["iso-8601"],
+    "TIME_FORMAT": "iso-8601",
+    "TIME_INPUT_FORMATS": ["iso-8601"],
+    "UNICODE_JSON": True,
+    "COMPACT_JSON": True,
+    "STRICT_JSON": True,
+    "COERCE_DECIMAL_TO_STRING": True,
+    "UPLOADED_FILES_USE_URL": True,
+    "HTML_SELECT_CUTOFF": 1000,
+    "HTML_SELECT_CUTOFF_TEXT": "More than {count} items...",
+    "SCHEMA_COERCE_PATH_PK": True,
+    "SCHEMA_COERCE_METHOD_NAMES": {"retrieve": "read", "destroy": "delete"},
+}
+
+
+# CORS SETTINGS
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+CORS_URLS_REGEX = r"^/api/.*$"
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
+"""
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://\w+\.example\.com$",
+]
+"""
+
+# SIMPLE JWT
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),  # timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": get_env_variable("SECRET_KEY"),
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": (
+        "rest_framework_simplejwt.authentication"
+        ".default_user_authentication_rule"
+    ),
+    "AUTH_TOKEN_CLASSES": (
+        "rest_framework_simplejwt.tokens.AccessToken",
+        "rest_framework_simplejwt.tokens.SlidingToken",
+    ),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+    "JTI_CLAIM": "jti",
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+    "TOKEN_OBTAIN_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenObtainPairSerializer"
+    ),
+    "TOKEN_REFRESH_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenRefreshSerializer"
+    ),
+    "TOKEN_VERIFY_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenVerifySerializer"
+    ),
+    "TOKEN_BLACKLIST_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+        # "authentication.api.serializers.JWTTokenBlacklistSerializer",
+        # "authentication.api.serializers.SlidingTokenBlacklistSerializer",
+    ),
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer"
+    ),
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer"
+    ),
+}
