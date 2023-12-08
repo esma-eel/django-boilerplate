@@ -56,9 +56,9 @@ to go with noraml user in a container
 docker exec -it -u 1 redis_server sh
 
 ## celery 
- ./doker/celery/celery.Runner.sh
-
-docker-compose -f doker/celery/dc-celery.yml up -d --build
+./doker/celery/celery.Runner.sh
+i did some works on celery but finally i had to run the sh above
+to use it in localhost
 
 # TODO:
 - remember to use .env files for docker later
