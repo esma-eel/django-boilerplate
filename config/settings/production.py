@@ -21,3 +21,14 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Celery and Redis
+CELERY_BROKER_URL = get_env_variable_with_default(
+    "CELERY_BROKER_URL", "redis://localhost:6379"
+)
+
+# save Celery task results in Django's database
+CELERY_RESULT_BACKEND = "django-db"
+
+# this allows you to schedule items in the Django admin.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'

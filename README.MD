@@ -43,3 +43,24 @@ add codes below to apps.py
 
 ## flusth expired tokens
 python manage.py flushexpiredtokens
+
+
+## run redis server
+docker-compose -f dc-redis.yml up -d --build
+
+## connect to a container
+to go with root in a container
+docker exec -it -u 0 redis_server sh 
+
+to go with noraml user in a container
+docker exec -it -u 1 redis_server sh
+
+## celery 
+./doker/celery/celery.Runner.sh
+i did some works on celery but finally i had to run the sh above
+to use it in localhost
+
+# TODO:
+- remember to use .env files for docker later
+- later you should put execution files of celery run in docker-compose (just a reminder)
+

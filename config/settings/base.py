@@ -40,6 +40,14 @@ def get_env_variable(var_name):
         raise ImproperlyConfigured(error_msg)
 
 
+def get_env_variable_with_default(var_name, default):
+    try:
+        result = get_env_variable(var_name)
+        return result
+    except (ImproperlyConfigured, KeyError):
+        return default
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -59,6 +67,8 @@ INSTALLED_APPS = [
     "django_filters",
     "django_extensions",
     "corsheaders",
+    "django_celery_beat",
+    "django_celery_results",
     # boilerplate
     "boilerplate.users",
     "boilerplate.profiles",
@@ -108,13 +118,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# main database is in production.py
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
