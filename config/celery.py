@@ -7,7 +7,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
 
 
 celery_app = Celery("config")
-task_files = []
+task_files = [
+]
 
 
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")

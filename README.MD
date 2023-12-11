@@ -60,6 +60,28 @@ docker exec -it -u 1 redis_server sh
 i did some works on celery but finally i had to run the sh above
 to use it in localhost
 
+## adminstration
+create models in models/ module
+with name of that category then import it
+in the __init__.py of models/ module
+
+### sms templates
+create sms template of otp from admin first
+create otp1 template
+in sms service provider
+with token variable
+
+example
+name:
+    otp1
+template text:
+    Test
+    Code: %token
+### api key
+create api key of sms provider in admin first
+code for sms provider is 
+"sms_provider_key"
+
 # TODO:
 - remember to use .env files for docker later
 - later you should put execution files of celery run in docker-compose (just a reminder)
