@@ -17,4 +17,4 @@ def send_sms(receptor, template, token_data):
         response = api.verify_lookup(params)
         return response
     except Exception as e:
-        return "failed"
+        print(e)

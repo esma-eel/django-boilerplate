@@ -52,4 +52,20 @@ urlpatterns = [
         views.SlidingTokenBlacklistView.as_view(),
         name="token-blacklist",
     ),
+    # otp
+    path(
+        "otp/generate-sms/",
+        views.RequestOTPWithPhoneNumberView.as_view(),
+        name="otp-generate-sms",
+    ),
+    path(
+        "otp/verify-sms/",
+        views.VerifyOTPWithPhoneNumberView.as_view(),
+        name="otp-generate-sms",
+    ),
+    path(
+        "jwt/phone-number-and-otp/",
+        views.JWTCreateWithPhoneNumberAndOTPView.as_view(),
+        name="jwt-phone-number-and-otp",
+    ),
 ]

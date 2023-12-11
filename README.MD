@@ -15,11 +15,13 @@ or put the export command in .bashrc or .zshrc files
 cd ~/.virtualenvs/$NAMEOFVENV/bin
 vim postactivate
     export DJANGO_SETTINGS_MODULE=config.settings.local
-    export SECRET_KEY="somestring"
+    export SECRET_KEY=""
+    export CELERY_BROKER_URL=""
 
 vim postdeactivate
     unset DJANGO_SETTINGS_MODULE
     unset SECRET_KEY
+    unset CELERY_BROKER_URL
 
 ## Run commands of management.py
 if you set previous step
