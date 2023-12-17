@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     "boilerplate.users",
     "boilerplate.profiles",
     "boilerplate.authentication",
+    "boilerplate.communications",
+    "boilerplate.adminstration",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
