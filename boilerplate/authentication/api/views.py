@@ -17,7 +17,7 @@ from .serializers import (
 )
 
 from ..utils.otp_helpers import generate_otp_for_receiver, get_otp_of_receiver
-from boilerplate.communications.tasks import celery_sms
+from boilerplate.communications.tasks import kavenegar_celery_send_sms
 from boilerplate.adminstration.models import SMSTemplate
 
 
@@ -154,15 +154,14 @@ class RequestOTPWithPhoneNumberView(APIView):
 
         phone_number = serializer.validated_data.get("phone_number")
 
-        generate_otp_for_receiver(phone_number)
-        otp_value = get_otp_of_receiver(phone_number)
+        otp_value = generate_otp_for_receiver(phone_number)
 
         if otp_value:
             headers = self.get_success_headers(request.data)
             try:
                 token_data = {"token": otp_value}
                 sms_template = SMSTemplate.objects.get(code="otp1")
-                celery_sms.delay(
+                kavenegar_celery_send_sms.delay(
                     receptor=phone_number,
                     template=sms_template.code,
                     token_data=token_data,

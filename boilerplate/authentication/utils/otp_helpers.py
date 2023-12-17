@@ -16,7 +16,10 @@ def generate_otp_for_receiver(receiver):
     lifetime = 300  # seconds
     receiver_key = get_otp_key(receiver)
     otp_is_created = redis_set_kvt(receiver_key, otp, lifetime)
-    return otp_is_created
+    if otp_is_created:
+        return get_otp_of_receiver(receiver)
+
+    return None
 
 
 def get_otp_of_receiver(receiver):
@@ -37,4 +40,4 @@ def verify_input_otp_of_receiver(receiver, input_otp):
         is_expired = expire_otp(receiver)
         return is_expired
 
-    return False
+    return None

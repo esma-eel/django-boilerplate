@@ -3,7 +3,7 @@ from kavenegar import KavenegarAPI
 from boilerplate.adminstration.models import APIKey
 
 
-def send_sms(receptor, template, token_data):
+def kavenegar_send_sms(receptor, template, token_data):
     apikey_qs = APIKey.objects.filter(code="sms_provider_key")
     if not apikey_qs.exists():
         return "failed, there is no sms apikey"
