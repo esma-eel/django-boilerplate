@@ -68,4 +68,9 @@ urlpatterns = [
         views.JWTCreateWithPhoneNumberAndOTPView.as_view(),
         name="jwt-phone-number-and-otp",
     ),
+    path(
+        "auth/verify-phone-number/",
+        views.VerifyPhoneNumberWithOTPView.as_view(),
+        name="verify-phone-number",
+    ),
 ]

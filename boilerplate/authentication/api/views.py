@@ -3,7 +3,6 @@ from django.contrib.auth import login
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenBlacklistView
@@ -46,7 +45,10 @@ class JWTCreateWithPhoneNumberAndPassword(APIView):
         )
 
         if not qs_phone_numbers_objects.exists():
-            raise ValidationError({"phone_number": "Phone number is not valid"})
+            return Response(
+                {"phone_number": "Phone number is not valid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         phone_number_object = qs_phone_numbers_objects.last()
         profile_user_obj = phone_number_object.profile.user
@@ -98,7 +100,10 @@ class JWTCreateWithEmailAndPassword(APIView):
         )
 
         if not qs_email_objects.exists():
-            raise ValidationError({"email": "Email is not valid"})
+            return Response(
+                {"email": "Email is not valid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         email_object = qs_email_objects.last()
         profile_user_obj = email_object.profile.user
@@ -224,7 +229,14 @@ class JWTCreateWithPhoneNumberAndOTPView(APIView):
             is_primary=True, number=phone_number, is_verified=True
         )
         if not qs_phone_numbers_objects.exists():
-            raise ValidationError({"phone_number": "Phone number is not valid"})
+            return Response(
+                {
+                    "phone_number": (
+                        "Please enter your verified primary phone number"
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         phone_number_object = qs_phone_numbers_objects.last()
         profile_user_obj = phone_number_object.profile.user
@@ -237,6 +249,50 @@ class JWTCreateWithPhoneNumberAndOTPView(APIView):
                 "refresh": str(jwt_refresh_obj),
                 "access": str(jwt_refresh_obj.access_token),
             },
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+class VerifyPhoneNumberWithOTPView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        serializer = PhoneNumberAndOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_number = serializer.validated_data.get("phone_number")
+        qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
+            number=phone_number
+        )
+        if not qs_phone_numbers_objects.exists():
+            return Response(
+                {"phone_number": "Phone number does not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        phone_number_object = qs_phone_numbers_objects.last()
+
+        if phone_number_object.is_verified:
+            return Response(
+                {"phone_number": "Phone number is already verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        phone_number_object.is_verified = True
+        phone_number_object.save()
+
+        headers = self.get_success_headers(request.data)
+
+        return Response(
+            {"message": "Phone number verified successfully"},
             status=status.HTTP_200_OK,
             headers=headers,
         )
