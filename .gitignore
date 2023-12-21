@@ -271,3 +271,4 @@ pyrightconfig.json
 .dist
 # .vscode
 notes
+*.db

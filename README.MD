@@ -48,7 +48,7 @@ python manage.py flushexpiredtokens
 
 
 ## run redis server
-docker-compose -f dc-redis.yml up -d --build
+docker compose -f dc-redis.yml up -d --build
 
 ## connect to a container
 to go with root in a container
@@ -83,6 +83,30 @@ template text:
 create api key of sms provider in admin first
 code for sms provider is 
 "sms_provider_key"
+
+## Email SMTP testing
+to see sent emails for testing you have to run mailpit server with docker
+docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
+
+settings to work are
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = '127.0.0.1'
+EMAIL_PORT = 1025
+then use send mail function
+from django.core.mail import send_mail
+
+### email templates
+create email template of otp from admin first
+create otp1 template
+add token
+example
+name:
+    otp1
+template text:
+    Test
+    Code: {token}
+
+
 
 # TODO:
 - remember to use .env files for docker later

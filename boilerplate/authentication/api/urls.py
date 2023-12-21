@@ -52,7 +52,7 @@ urlpatterns = [
         views.SlidingTokenBlacklistView.as_view(),
         name="token-blacklist",
     ),
-    # otp
+    # otp phone
     path(
         "otp/generate-sms/",
         views.RequestOTPWithPhoneNumberView.as_view(),
@@ -61,7 +61,7 @@ urlpatterns = [
     path(
         "otp/verify-sms/",
         views.VerifyOTPWithPhoneNumberView.as_view(),
-        name="otp-generate-sms",
+        name="otp-verify-sms",
     ),
     path(
         "jwt/phone-number-and-otp/",
@@ -71,6 +71,27 @@ urlpatterns = [
     path(
         "auth/verify-phone-number/",
         views.VerifyPhoneNumberWithOTPView.as_view(),
-        name="verify-phone-number",
+        name="auth-verify-phone-number",
+    ),
+    # otp email
+    path(
+        "otp/generate-email/",
+        views.RequestOTPWithEmailView.as_view(),
+        name="otp-generate-email",
+    ),
+    path(
+        "otp/verify-email/",
+        views.VerifyOTPWithEmailView.as_view(),
+        name="otp-verify-email",
+    ),
+    path(
+        "jwt/email-and-otp/",
+        views.JWTCreateWithEmailAndOTPView.as_view(),
+        name="jwt-email-and-otp",
+    ),
+    path(
+        "auth/verify-email/",
+        views.VerifyEmailWithOTPView.as_view(),
+        name="auth-verify-email",
     ),
 ]

@@ -76,3 +76,33 @@ class PhoneNumberAndOTPSerializer(serializers.Serializer):
             )
 
         return attrs
+
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class EmailAndOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField()
+
+    def validate_otp(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError(
+                {"otp": "OTP Code format is wrong"}
+            )
+
+        return value
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        otp = attrs.get("otp")
+
+        result = verify_input_otp_of_receiver(email, otp)
+
+        if not result:
+            raise serializers.ValidationError(
+                {"otp": "OTP Code is wrong or expired"}
+            )
+
+        return attrs
