@@ -1,6 +1,7 @@
 from celery import shared_task
 from django.conf import settings
 from .utils.sms import kavenegar_send_sms
+from .utils.email import send_email
 
 
 @shared_task
@@ -17,3 +18,21 @@ def kavenegar_celery_send_sms(
             return response[0]["message"]
     except Exception as e:
         return "failed"
+
+
+@shared_task
+def celery_send_email(
+    json_content,
+    to_emails,
+):
+    try:
+        response = send_email(
+            to_emails,
+            json_content,
+        )
+        if response == 1:
+            return "email sended"
+        else:
+            return response
+    except Exception as e:
+        return e.args[0]

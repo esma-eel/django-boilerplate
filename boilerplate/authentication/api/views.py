@@ -13,11 +13,16 @@ from .serializers import (
     EmailAndPasswordSerializer,
     PhoneNumberSerializer,
     PhoneNumberAndOTPSerializer,
+    EmailSerializer,
+    EmailAndOTPSerializer,
 )
 
-from ..utils.otp_helpers import generate_otp_for_receiver, get_otp_of_receiver
-from boilerplate.communications.tasks import kavenegar_celery_send_sms
-from boilerplate.adminstration.models import SMSTemplate
+from ..utils.otp_helpers import generate_otp_for_receiver
+from boilerplate.communications.tasks import (
+    kavenegar_celery_send_sms,
+    celery_send_email,
+)
+from boilerplate.adminstration.models import SMSTemplate, EmailTemplate
 
 
 class JWTCreateWithPhoneNumberAndPassword(APIView):
@@ -143,6 +148,7 @@ class SlidingTokenBlacklistView(TokenBlacklistView):
     )
 
 
+# otp phone number
 class RequestOTPWithPhoneNumberView(APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
@@ -293,6 +299,158 @@ class VerifyPhoneNumberWithOTPView(APIView):
 
         return Response(
             {"message": "Phone number verified successfully"},
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+# otp email
+class RequestOTPWithEmailView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get("email")
+
+        otp_value = generate_otp_for_receiver(email)
+
+        if otp_value:
+            headers = self.get_success_headers(request.data)
+            try:
+                token_data = {"token": otp_value}
+                email_template = EmailTemplate.objects.get(code="otp1")
+                email_content = email_template.content.format(**token_data)
+                json_content = {
+                    "title": email_template.name,
+                    "content": email_content,
+                }
+                to_emails = [email]
+                celery_send_email.delay(json_content, to_emails)
+
+                return Response(
+                    data={"message": f"OTP Sent to {email}"},
+                    status=status.HTTP_200_OK,
+                    headers=headers,
+                )
+            except Exception:
+                return Response(
+                    data={"message": "There is no email template for otp"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        return Response(
+            data={"message": "Cant create otp, try later"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class VerifyOTPWithEmailView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailAndOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        headers = self.get_success_headers(request.data)
+        return Response(
+            data={"message": "OTP is right"},
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+class JWTCreateWithEmailAndOTPView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailAndOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get("email")
+        qs_email_objects = ProfileEmail.objects.filter(
+            is_primary=True, email=email, is_verified=True
+        )
+        if not qs_email_objects.exists():
+            return Response(
+                {"email": "Please enter your verified primary email"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email_object = qs_email_objects.last()
+        profile_user_obj = email_object.profile.user
+
+        headers = self.get_success_headers(request.data)
+
+        jwt_refresh_obj = RefreshToken.for_user(profile_user_obj)
+        return Response(
+            {
+                "refresh": str(jwt_refresh_obj),
+                "access": str(jwt_refresh_obj.access_token),
+            },
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+class VerifyEmailWithOTPView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailAndOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get("email")
+        qs_email_objects = ProfileEmail.objects.filter(email=email)
+        if not qs_email_objects.exists():
+            return Response(
+                {"phone_number": "Email does not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email_object = qs_email_objects.last()
+
+        if email_object.is_verified:
+            return Response(
+                {"phone_number": "Email is already verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email_object.is_verified = True
+        email_object.save()
+
+        headers = self.get_success_headers(request.data)
+
+        return Response(
+            {"message": "Email verified successfully"},
             status=status.HTTP_200_OK,
             headers=headers,
         )
