@@ -94,4 +94,9 @@ urlpatterns = [
         views.VerifyEmailWithOTPView.as_view(),
         name="auth-verify-email",
     ),
+    path(
+        "auth/reset-password/phone-number-and-otp/",
+        views.ResetPasswordOTPWithPhoneNumberView.as_view(),
+        name="auth-reset-password-phone-number-otp",
+    ),
 ]
