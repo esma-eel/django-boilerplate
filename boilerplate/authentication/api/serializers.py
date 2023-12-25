@@ -1,8 +1,8 @@
+import re
 from rest_framework import serializers
 from boilerplate.common.utils.numbers import ir_phone_number
 from rest_framework_simplejwt.tokens import RefreshToken, SlidingToken
 from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
-from boilerplate.common.utils.redis_helpers import redis_get_key
 from ..utils.otp_helpers import verify_input_otp_of_receiver
 
 
@@ -103,6 +103,44 @@ class EmailAndOTPSerializer(serializers.Serializer):
         if not result:
             raise serializers.ValidationError(
                 {"otp": "OTP Code is wrong or expired"}
+            )
+
+        return attrs
+
+
+class PasswordCheckSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    repeat_password = serializers.CharField()
+
+    def validate_password(self, value):
+        password_pattern = (
+            r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+        )
+        if not re.match(password_pattern, value):
+            raise serializers.ValidationError(
+                {
+                    "password": [
+                        "At least minimum 8 characters in length",
+                        "At least one uppercase English letter",
+                        "At least one lowercase English letter",
+                        "At least one digit",
+                        "At least one special character [#?!@$%^&*-]",
+                    ]
+                }
+            )
+        return value
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+        repeat_password = attrs.get("repeat_password")
+
+        if password != repeat_password:
+            raise serializers.ValidationError(
+                {
+                    "message": (
+                        "password and repeat password values, are not equal"
+                    )
+                }
             )
 
         return attrs

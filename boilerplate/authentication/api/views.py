@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth import login
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,6 +14,7 @@ from .serializers import (
     PhoneNumberAndOTPSerializer,
     EmailSerializer,
     EmailAndOTPSerializer,
+    PasswordCheckSerializer,
 )
 
 from ..utils.otp_helpers import generate_otp_for_receiver
@@ -451,6 +451,61 @@ class VerifyEmailWithOTPView(APIView):
 
         return Response(
             {"message": "Email verified successfully"},
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+class ResetPasswordOTPWithPhoneNumberView(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        password_serializer = PasswordCheckSerializer(data=request.data)
+        password_serializer.is_valid(raise_exception=True)
+        phone_number_otp_serializer = PhoneNumberAndOTPSerializer(
+            data=request.data
+        )
+        phone_number_otp_serializer.is_valid(raise_exception=True)
+
+        phone_number = phone_number_otp_serializer.validated_data.get(
+            "phone_number"
+        )
+
+        qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
+            is_primary=True, number=phone_number, is_verified=True
+        )
+        if not qs_phone_numbers_objects.exists():
+            return Response(
+                {
+                    "phone_number": (
+                        "Please enter your verified primary phone number"
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        phone_number_object = qs_phone_numbers_objects.last()
+        profile_user_obj = phone_number_object.profile.user
+
+        password_value = password_serializer.validated_data.get("password")
+        profile_user_obj.set_password(password_value)
+        profile_user_obj.save()
+
+        headers = self.get_success_headers(request.data)
+        return Response(
+            data={
+                "message": (
+                    f"Password reset for user '{profile_user_obj}' was"
+                    " successful"
+                )
+            },
             status=status.HTTP_200_OK,
             headers=headers,
         )
