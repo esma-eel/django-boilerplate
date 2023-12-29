@@ -3,7 +3,7 @@ from boilerplate.common.utils.redis_helpers import (
     redis_get_key,
     redis_remove_key,
 )
-from boilerplate.common.utils.generators import generate_number
+from .generators import generate_number
 
 
 def get_otp_key(receiver):
