@@ -99,4 +99,15 @@ urlpatterns = [
         views.ResetPasswordOTPWithPhoneNumberView.as_view(),
         name="auth-reset-password-phone-number-otp",
     ),
+    # otl
+    path(
+        "auth/reset-password/request-email-otl/",
+        views.ResetPasswordRequestOTLWithEmailView.as_view(),
+        name="auth-reset-password-request-email-otl",
+    ),
+    path(
+        "auth/reset-password/email-and-otl/<str:otl>/",
+        views.ResetPasswordOTLWithEmailView.as_view(),
+        name="auth-reset-password-email-otl",
+    ),
 ]

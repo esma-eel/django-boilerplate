@@ -31,6 +31,7 @@ def redis_setkv(key, value):
 
 def redis_get_keys():
     keys = redis_client.keys()
+    return keys
 
 
 def redis_set_kvt(key, value, time):

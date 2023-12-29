@@ -4,6 +4,7 @@ from boilerplate.common.utils.numbers import ir_phone_number
 from rest_framework_simplejwt.tokens import RefreshToken, SlidingToken
 from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 from ..utils.otp_helpers import verify_input_otp_of_receiver
+from ..utils.otl_helpers import verify_input_otl_of_receiver
 
 
 class PhoneNumberSerializer(serializers.Serializer):
@@ -141,6 +142,24 @@ class PasswordCheckSerializer(serializers.Serializer):
                         "password and repeat password values, are not equal"
                     )
                 }
+            )
+
+        return attrs
+
+
+class EmailAndOTLSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otl = serializers.CharField()
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        otl = attrs.get("otl")
+
+        result = verify_input_otl_of_receiver(otl, email)
+
+        if not result:
+            raise serializers.ValidationError(
+                {"otl": "OTL Token is wrong or expired"}
             )
 
         return attrs
