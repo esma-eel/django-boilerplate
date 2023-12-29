@@ -110,4 +110,9 @@ urlpatterns = [
         views.ResetPasswordOTLWithEmailView.as_view(),
         name="auth-reset-password-email-otl",
     ),
+    path(
+        "auth/change-password/",
+        views.AuthenticatedUserChangePassword.as_view(),
+        name="auth-change-password",
+    ),
 ]
