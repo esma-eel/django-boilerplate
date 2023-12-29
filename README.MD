@@ -106,6 +106,13 @@ template text:
     Test
     Code: {token}
 
+name:
+    otl1
+template text:
+    Link of password reset:
+    Link: {link}
+
+    Important: Link is active for 6 hours
 
 
 # TODO:
