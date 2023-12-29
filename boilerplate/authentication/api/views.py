@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenBlacklistView
@@ -612,6 +613,38 @@ class ResetPasswordOTLWithEmailView(APIView):
                 "message": (
                     f"Password reset for user '{profile_user_obj}' was"
                     " successful"
+                )
+            },
+            status=status.HTTP_200_OK,
+            headers=headers,
+        )
+
+
+class AuthenticatedUserChangePassword(APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+    permission_classes = [IsAuthenticated]
+
+    def get_success_headers(self, data):
+        try:
+            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def post(self, request, *args, **kwargs):
+        password_serializer = PasswordCheckSerializer(data=request.data)
+        password_serializer.is_valid(raise_exception=True)
+        user_obj = request.user
+
+        password_value = password_serializer.validated_data.get("password")
+        user_obj.set_password(password_value)
+        user_obj.save()
+
+        headers = self.get_success_headers(request.data)
+        return Response(
+            data={
+                "message": (
+                    f"Password change for user '{user_obj}' was successful"
                 )
             },
             status=status.HTTP_200_OK,
