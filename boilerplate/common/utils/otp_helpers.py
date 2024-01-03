@@ -3,6 +3,11 @@ from boilerplate.common.utils.redis_helpers import (
     redis_get_key,
     redis_remove_key,
 )
+from boilerplate.communications.tasks import (
+    kavenegar_celery_send_sms,
+    celery_send_email,
+)
+from . import email_templates, sms_templates
 from .generators import generate_number
 
 
@@ -41,3 +46,36 @@ def verify_input_otp_of_receiver(receiver, input_otp):
         return is_expired
 
     return None
+
+
+def send_otp_to_receiver_sms(receiver, otp):
+    try:
+        token_data = {"token": otp}
+        celery_result_object = kavenegar_celery_send_sms.delay(
+            receptor=receiver,
+            template=sms_templates.OTP,
+            token_data=token_data,
+        )
+        celery_result_object.wait(timeout=15)
+        return celery_result_object.result
+
+    except Exception:
+        return False
+
+
+def send_otp_to_receiver_email(receiver, otp):
+    try:
+        token_data = {"token": otp}
+        email_content = email_templates.OTP.get("content")
+        email_content = email_content.format(**token_data)
+        json_content = {
+            "title": "OTP Code",
+            "content": email_content,
+        }
+        to_emails = [receiver]
+        celery_result_object = celery_send_email.delay(json_content, to_emails)
+        celery_result_object.wait(timeout=15)
+        return celery_result_object.result
+
+    except Exception:
+        return False
