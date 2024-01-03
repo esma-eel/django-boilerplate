@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from boilerplate.common.api.otp.serializers import (
-    EmailAndOTPSerializer,
-    PhoneNumberAndOTPSerializer,
+    EmailOTPSerializer,
+    PhoneOTPSerializer,
 )
 from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
 
@@ -138,7 +138,7 @@ class JWTCreateWithPhoneNumberAndOTPView(APIView):
             return {}
 
     def post(self, request, *args, **kwargs):
-        serializer = PhoneNumberAndOTPSerializer(data=request.data)
+        serializer = PhoneOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         phone_number = serializer.validated_data.get("phone_number")
@@ -182,7 +182,7 @@ class JWTCreateWithEmailAndOTPView(APIView):
             return {}
 
     def post(self, request, *args, **kwargs):
-        serializer = EmailAndOTPSerializer(data=request.data)
+        serializer = EmailOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data.get("email")

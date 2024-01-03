@@ -8,22 +8,22 @@ otp_urlpatterns = [
     # otp
     path(
         "otp/sms/create/",
-        otp_views.RequestOTPWithPhoneNumberView.as_view(),
+        otp_views.RequestOTPPhoneApiView.as_view(),
         name="otp-sms-create",
     ),
     path(
         "otp/sms/verify/",
-        otp_views.VerifyOTPWithPhoneNumberView.as_view(),
+        otp_views.VerifyOTPPhoneApiView.as_view(),
         name="otp-sms-verify",
     ),
     path(
         "otp/email/create/",
-        otp_views.RequestOTPWithEmailView.as_view(),
+        otp_views.RequestOTPEmailApiView.as_view(),
         name="otp-email-create",
     ),
     path(
         "otp/email/verify/",
-        otp_views.VerifyOTPWithEmailView.as_view(),
+        otp_views.VerifyOTPEmailApiView.as_view(),
         name="otp-email-verify",
     ),
 ]

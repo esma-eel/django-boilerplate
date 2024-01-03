@@ -4,8 +4,8 @@ from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from boilerplate.common.api.otp.serializers import (
-    EmailAndOTPSerializer,
-    PhoneNumberAndOTPSerializer,
+    EmailOTPSerializer,
+    PhoneOTPSerializer,
 )
 from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
 
@@ -58,14 +58,14 @@ class ProfileFieldVerificationAPIView(APIView):
 
 
 class VerifyPhoneNumberWithOTPView(ProfileFieldVerificationAPIView):
-    serializer = PhoneNumberAndOTPSerializer
+    serializer = PhoneOTPSerializer
     field = "phone_number"
     model = ProfilePhoneNumber
     model_field = "number"
 
 
 class VerifyEmailWithOTPView(ProfileFieldVerificationAPIView):
-    serializer = EmailAndOTPSerializer
+    serializer = EmailOTPSerializer
     field = "email"
     model = ProfileEmail
     model_field = "email"

@@ -5,14 +5,13 @@ from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
-from boilerplate.adminstration.models import EmailTemplate
 from boilerplate.common.api.otl.serializers import EmailAndOTLSerializer
-from boilerplate.common.api.otp.serializers import PhoneNumberAndOTPSerializer
+from boilerplate.common.api.otp.serializers import PhoneOTPSerializer
 from boilerplate.common.api.general.serializers import EmailSerializer
 from boilerplate.common.utils.otl_helpers import generate_otl_for_receiver
 from boilerplate.communications.tasks import celery_send_email
 from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
-
+from boilerplate.common.utils import email_templates
 from .serializers import PasswordCheckSerializer
 
 
@@ -29,9 +28,7 @@ class ResetPasswordOTPWithPhoneNumberView(APIView):
     def post(self, request, *args, **kwargs):
         password_serializer = PasswordCheckSerializer(data=request.data)
         password_serializer.is_valid(raise_exception=True)
-        phone_number_otp_serializer = PhoneNumberAndOTPSerializer(
-            data=request.data
-        )
+        phone_number_otp_serializer = PhoneOTPSerializer(data=request.data)
         phone_number_otp_serializer.is_valid(raise_exception=True)
 
         phone_number = phone_number_otp_serializer.validated_data.get(
@@ -98,10 +95,10 @@ class ResetPasswordRequestOTLWithEmailView(APIView):
             )
             try:
                 token_data = {"link": link}
-                email_template = EmailTemplate.objects.get(code="otl1")
-                email_content = email_template.content.format(**token_data)
+                email_content = email_templates.OTL.get("content")
+                email_content = email_content.format(**token_data)
                 json_content = {
-                    "title": email_template.name,
+                    "title": "OTL Email",
                     "content": email_content,
                 }
                 to_emails = [email]
