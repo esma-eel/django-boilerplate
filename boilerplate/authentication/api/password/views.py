@@ -92,7 +92,7 @@ class ResetPasswordRequestOTLWithEmailView(APIView):
         if otl_value:
             headers = self.get_success_headers(request.data)
             link = reverse(
-                "authentication:reset-password-email-otl",
+                "api-authentication:reset-password-email-otl",
                 args=[otl_value],
                 request=request,
             )

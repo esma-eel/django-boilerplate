@@ -6,6 +6,8 @@ from .blacklist import views as blacklist_views
 from .password import views as password_views
 
 
+app_name = "api-authentication"
+
 login_urlpatterns = [
     # JWT
     path(
