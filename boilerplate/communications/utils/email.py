@@ -10,4 +10,4 @@ def send_email(to_emails, json_content):
     )
     body = loader.render_to_string("email/default.html", json_content)
     msg.attach_alternative(body, "text/html")
-    msg.send()
+    return msg.send()
