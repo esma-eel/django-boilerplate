@@ -1,21 +1,21 @@
 from rest_framework import serializers
+from boilerplate.common.api.general.serializers import (
+    PhoneNumberSerializer,
+    EmailSerializer,
+)
 
-from boilerplate.common.utils.number_helpers import ir_phone_number
 
-
-class PhoneNumberAndPasswordSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(max_length=11)
+class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
 
-    def validate_phone_number(self, value):
-        if not ir_phone_number(value):
-            raise serializers.ValidationError(
-                {"phone_number": "Phone number is not valid"}
-            )
 
-        return value
+class PhonePasswordSerializer(
+    PhoneNumberSerializer, PasswordSerializer, serializers.Serializer
+):
+    pass
 
 
-class EmailAndPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
+class EmailPasswordSerializer(
+    EmailSerializer, PasswordSerializer, serializers.Serializer
+):
+    pass

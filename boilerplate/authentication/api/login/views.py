@@ -12,17 +12,78 @@ from boilerplate.common.api.otp.serializers import (
 from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
 
 from .serializers import (
-    EmailAndPasswordSerializer,
-    PhoneNumberAndPasswordSerializer,
+    EmailPasswordSerializer,
+    PhonePasswordSerializer,
 )
 
 
-class JWTCreateWithPhoneNumberAndPassword(APIView):
-    # authentication_classes = []
-    # permission_classes = []
-
+class JWTCreateProfileFieldPassword(APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
+
+    serializer = None
+    profile_model = None
+    profile_field = ""
+
+    def validate_serializer(self, request):
+        self.validated_serializer = self.serializer(data=request.data)
+        self.validated_serializer.is_valid(raise_exception=True)
+        return self.validated_serializer
+
+    def get_password(self):
+        return self.validated_serializer.validated_data.get("password")
+
+    def get_profile_field(self):
+        return self.validated_serializer.validated_data.get(self.profile_field)
+
+    def get_queryset(self):
+        field_value = self.get_profile_field()
+        queryset = self.profile_model.objects.filter(
+            is_primary=True,
+            is_verified=True,
+            **{self.profile_field: field_value},
+        )
+
+        return queryset
+
+    def get_profile_object(self):
+        queryset = self.get_queryset()
+        if not queryset.exists():
+            return None
+
+        profile = queryset.last().profile
+        return profile
+
+    def get_profile_user(self):
+        profile_object = self.get_profile_object()
+        if profile_object:
+            profile_user = profile_object.user
+            return profile_user
+
+        return None
+
+    def authenticate_user(self):
+        password = self.get_password()
+        user = self.get_profile_user()
+
+        if user and password:
+            authenticated_user = authenticate(
+                username=user.username, password=password
+            )
+            return authenticated_user
+
+        return None
+
+    def get_tokens(self):
+        authenticated_user = self.authenticate_user()
+        if authenticated_user:
+            jwt_refresh_obj = RefreshToken.for_user(authenticated_user)
+            return {
+                "refresh": str(jwt_refresh_obj),
+                "access": str(jwt_refresh_obj.access_token),
+            }
+
+        return {}
 
     def get_success_headers(self, data):
         try:
@@ -31,181 +92,62 @@ class JWTCreateWithPhoneNumberAndPassword(APIView):
             return {}
 
     def post(self, request, *args, **kwargs):
-        serializer = PhoneNumberAndPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        phone_number = serializer.validated_data.get("phone_number")
-        password = serializer.validated_data.get("password")
-
-        qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
-            is_primary=True, number=phone_number, is_verified=True
-        )
-
-        if not qs_phone_numbers_objects.exists():
-            return Response(
-                {"phone_number": "Phone number is not valid"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        phone_number_object = qs_phone_numbers_objects.last()
-        profile_user_obj = phone_number_object.profile.user
-        authenticated_user = authenticate(
-            username=profile_user_obj.username, password=password
-        )
-
-        headers = self.get_success_headers(request.data)
-
-        if authenticated_user:
-            jwt_refresh_obj = RefreshToken.for_user(authenticated_user)
-            return Response(
-                {
-                    "refresh": str(jwt_refresh_obj),
-                    "access": str(jwt_refresh_obj.access_token),
-                },
-                status=status.HTTP_200_OK,
-                headers=headers,
-            )
+        self.validate_serializer(request)
+        headers = self.get_success_headers(self.validated_serializer.data)
+        tokens = self.get_tokens()
+        if tokens:
+            return Response(tokens, status=status.HTTP_200_OK, headers=headers)
 
         return Response(
-            {"message": "Phone number or password is wrong"},
+            {"message": f"{self.profile_field.title()} or password is wrong"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
 
-class JWTCreateWithEmailAndPassword(APIView):
-    # authentication_classes = []
-    # permission_classes = []
+class JWTCreateWithPhoneNumberAndPassword(JWTCreateProfileFieldPassword):
+    serializer = PhonePasswordSerializer
+    profile_model = ProfilePhoneNumber
+    profile_field = "phone_number"
 
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
 
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
+class JWTCreateWithEmailAndPassword(JWTCreateProfileFieldPassword):
+    serializer = EmailPasswordSerializer
+    profile_model = ProfileEmail
+    profile_field = "email"
 
-    def post(self, request, *args, **kwargs):
-        serializer = EmailAndPasswordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        email = serializer.validated_data.get("email")
-        password = serializer.validated_data.get("password")
+class JWTCreateProfileFieldOTP(JWTCreateProfileFieldPassword):
+    serializer_field = ""
 
-        qs_email_objects = ProfileEmail.objects.filter(
-            is_primary=True, email=email, is_verified=True
+    def get_password(self):
+        return None
+
+    def get_profile_field(self):
+        return self.validated_serializer.validated_data.get(
+            self.serializer_field
         )
 
-        if not qs_email_objects.exists():
-            return Response(
-                {"email": "Email is not valid"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        email_object = qs_email_objects.last()
-        profile_user_obj = email_object.profile.user
-        authenticated_user = authenticate(
-            username=profile_user_obj.username, password=password
-        )
-
-        headers = self.get_success_headers(request.data)
-
+    def get_tokens(self):
+        authenticated_user = self.get_profile_user()
         if authenticated_user:
             jwt_refresh_obj = RefreshToken.for_user(authenticated_user)
-            return Response(
-                {
-                    "refresh": str(jwt_refresh_obj),
-                    "access": str(jwt_refresh_obj.access_token),
-                },
-                status=status.HTTP_200_OK,
-                headers=headers,
-            )
-
-        return Response(
-            {"message": "Email or password is wrong"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
-class JWTCreateWithPhoneNumberAndOTPView(APIView):
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
-
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
-
-    def post(self, request, *args, **kwargs):
-        serializer = PhoneOTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        phone_number = serializer.validated_data.get("phone_number")
-        qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
-            is_primary=True, number=phone_number, is_verified=True
-        )
-        if not qs_phone_numbers_objects.exists():
-            return Response(
-                {
-                    "phone_number": (
-                        "Please enter your verified primary phone number"
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        phone_number_object = qs_phone_numbers_objects.last()
-        profile_user_obj = phone_number_object.profile.user
-
-        headers = self.get_success_headers(request.data)
-
-        jwt_refresh_obj = RefreshToken.for_user(profile_user_obj)
-        return Response(
-            {
+            return {
                 "refresh": str(jwt_refresh_obj),
                 "access": str(jwt_refresh_obj.access_token),
-            },
-            status=status.HTTP_200_OK,
-            headers=headers,
-        )
+            }
+
+        return {}
 
 
-class JWTCreateWithEmailAndOTPView(APIView):
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
+class JWTCreateWithPhoneNumberAndOTPView(JWTCreateProfileFieldOTP, APIView):
+    serializer = PhoneOTPSerializer
+    serializer_field = "receiver"
+    profile_model = ProfilePhoneNumber
+    profile_field = "phone_number"
 
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
 
-    def post(self, request, *args, **kwargs):
-        serializer = EmailOTPSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.validated_data.get("email")
-        qs_email_objects = ProfileEmail.objects.filter(
-            is_primary=True, email=email, is_verified=True
-        )
-        if not qs_email_objects.exists():
-            return Response(
-                {"email": "Please enter your verified primary email"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        email_object = qs_email_objects.last()
-        profile_user_obj = email_object.profile.user
-
-        headers = self.get_success_headers(request.data)
-
-        jwt_refresh_obj = RefreshToken.for_user(profile_user_obj)
-        return Response(
-            {
-                "refresh": str(jwt_refresh_obj),
-                "access": str(jwt_refresh_obj.access_token),
-            },
-            status=status.HTTP_200_OK,
-            headers=headers,
-        )
+class JWTCreateWithEmailAndOTPView(JWTCreateProfileFieldOTP, APIView):
+    serializer = EmailOTPSerializer
+    serializer_field = "receiver"
+    profile_model = ProfileEmail
+    profile_field = "email"
