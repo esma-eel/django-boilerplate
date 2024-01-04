@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
-from boilerplate.common.api.general.serializers import (
+from boilerplate.profiles.api.serializers import (
     EmailSerializer,
     PhoneNumberSerializer,
 )
@@ -16,7 +16,7 @@ from boilerplate.common.utils.otp_helpers import (
 from .serializers import EmailOTPSerializer, PhoneOTPSerializer
 
 
-class RequestOTPApiView(APIView):
+class RequestOTPApiMixin(APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
     serializer = None
@@ -54,7 +54,7 @@ class RequestOTPApiView(APIView):
         self.receiver_serialzier.is_valid(raise_exception=True)
         receiver = self.get_receiver()
         otp_sent = self.send_otp()
-        headers = self.get_success_headers(self.receiver_serialzier.data)
+        headers = self.get_success_headers(request.data)
 
         if not otp_sent:
             return Response(
@@ -91,7 +91,7 @@ class VerifyOTPApiView(APIView):
         )
 
 
-class RequestOTPPhoneApiView(RequestOTPApiView):
+class RequestOTPPhoneApiView(RequestOTPApiMixin):
     serializer = PhoneNumberSerializer
     receiver_field = "phone_number"
 
@@ -99,7 +99,7 @@ class RequestOTPPhoneApiView(RequestOTPApiView):
         return send_otp_to_receiver_sms
 
 
-class RequestOTPEmailApiView(RequestOTPApiView):
+class RequestOTPEmailApiView(RequestOTPApiMixin):
     serializer = EmailSerializer
     receiver_field = "email"
 

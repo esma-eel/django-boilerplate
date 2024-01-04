@@ -1,12 +1,11 @@
 from rest_framework import serializers
-from boilerplate.common.api.general.serializers import (
+from boilerplate.profiles.api.serializers import (
     PhoneNumberSerializer,
     EmailSerializer,
 )
-
-
-class PasswordSerializer(serializers.Serializer):
-    password = serializers.CharField()
+from boilerplate.authentication.api.password.serializers import (
+    PasswordSerializer,
+)
 
 
 class PhonePasswordSerializer(

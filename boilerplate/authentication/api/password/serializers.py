@@ -1,6 +1,13 @@
-import re
-
 from rest_framework import serializers
+from boilerplate.authentication.utils.password_helpers import (
+    get_password_rules,
+    check_password_strength,
+    are_passwords_same,
+)
+
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
 
 
 class PasswordCheckSerializer(serializers.Serializer):
@@ -8,34 +15,22 @@ class PasswordCheckSerializer(serializers.Serializer):
     repeat_password = serializers.CharField()
 
     def validate_password(self, value):
-        password_pattern = (
-            r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-        )
-        if not re.match(password_pattern, value):
-            raise serializers.ValidationError(
-                {
-                    "password": [
-                        "At least minimum 8 characters in length",
-                        "At least one uppercase English letter",
-                        "At least one lowercase English letter",
-                        "At least one digit",
-                        "At least one special character [#?!@$%^&*-]",
-                    ]
-                }
-            )
+        is_strong_password = check_password_strength(value)
+
+        if not is_strong_password:
+            password_rules = get_password_rules()
+            raise serializers.ValidationError({"password": password_rules})
+
         return value
 
     def validate(self, attrs):
         password = attrs.get("password")
         repeat_password = attrs.get("repeat_password")
+        are_same = are_passwords_same(password, repeat_password)
 
-        if password != repeat_password:
+        if not are_same:
             raise serializers.ValidationError(
-                {
-                    "message": (
-                        "password and repeat password values, are not equal"
-                    )
-                }
+                {"message": "Passwords are not equal!"}
             )
 
         return attrs

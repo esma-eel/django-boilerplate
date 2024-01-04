@@ -1,204 +1,142 @@
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
-from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from boilerplate.common.api.otl.serializers import EmailAndOTLSerializer
+from boilerplate.common.api.otl.views import RequestOTLApiMixin
 from boilerplate.common.api.otp.serializers import PhoneOTPSerializer
-from boilerplate.common.api.general.serializers import EmailSerializer
-from boilerplate.common.utils.otl_helpers import generate_otl_for_receiver
-from boilerplate.communications.tasks import celery_send_email
-from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
-from boilerplate.common.utils import email_templates
+from boilerplate.profiles.api.mixins import (
+    ProfileEmailApiMixin,
+    ProfilePhoneNumberApiMixin,
+)
 from .serializers import PasswordCheckSerializer
 
 
-class ResetPasswordOTPWithPhoneNumberView(APIView):
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
+class ChangePasswordApiMixin:
+    def get_password_serializer(self):
+        return PasswordCheckSerializer
 
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
+    def validate_password_serializer(self, request):
+        password_serializer = self.get_password_serializer()
+        self.password_serializer = password_serializer(data=request.data)
+        self.password_serializer.is_valid(raise_exception=True)
+        return self.password_serializer
+
+    def get_password(self):
+        return self.password_serializer.validated_data.get("password")
+
+    def get_user(self, **kwargs):
+        return self.request.user
+
+    def change_password(self):
+        user_obj = self.get_user()
+        if user_obj:
+            password_value = self.get_password()
+            user_obj.set_password(password_value)
+            user_obj.save()
+            return True
+
+        return False
 
     def post(self, request, *args, **kwargs):
-        password_serializer = PasswordCheckSerializer(data=request.data)
-        password_serializer.is_valid(raise_exception=True)
-        phone_number_otp_serializer = PhoneOTPSerializer(data=request.data)
-        phone_number_otp_serializer.is_valid(raise_exception=True)
-
-        phone_number = phone_number_otp_serializer.validated_data.get(
-            "phone_number"
-        )
-
-        qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
-            is_primary=True, phone_number=phone_number, is_verified=True
-        )
-        if not qs_phone_numbers_objects.exists():
+        self.validate_password_serializer(request)
+        is_changed = self.change_password()
+        if is_changed:
             return Response(
-                {
-                    "phone_number": (
-                        "Please enter your verified primary phone number"
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+                data={"message": "Password changed"},
+                status=status.HTTP_200_OK,
             )
 
-        phone_number_object = qs_phone_numbers_objects.last()
-        profile_user_obj = phone_number_object.profile.user
-
-        password_value = password_serializer.validated_data.get("password")
-        profile_user_obj.set_password(password_value)
-        profile_user_obj.save()
-
-        headers = self.get_success_headers(request.data)
         return Response(
-            data={
-                "message": (
-                    f"Password reset for user '{profile_user_obj}' was"
-                    " successful"
-                )
-            },
-            status=status.HTTP_200_OK,
-            headers=headers,
-        )
-
-
-class ResetPasswordRequestOTLWithEmailView(APIView):
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
-
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
-
-    def post(self, request, *args, **kwargs):
-        serializer = EmailSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        email = serializer.validated_data.get("email")
-
-        otl_value = generate_otl_for_receiver(email)
-
-        if otl_value:
-            headers = self.get_success_headers(request.data)
-            link = reverse(
-                "api-authentication:reset-password-email-otl",
-                args=[otl_value],
-                request=request,
-            )
-            try:
-                token_data = {"link": link}
-                email_content = email_templates.OTL.get("content")
-                email_content = email_content.format(**token_data)
-                json_content = {
-                    "title": "OTL Email",
-                    "content": email_content,
-                }
-                to_emails = [email]
-                celery_send_email.delay(json_content, to_emails)
-
-                return Response(
-                    data={"message": f"Link Sent to {email}"},
-                    status=status.HTTP_200_OK,
-                    headers=headers,
-                )
-            except Exception:
-                return Response(
-                    data={
-                        "message": (
-                            "There is no email template for otl reset passsword"
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-        return Response(
-            data={"message": "Cant create OTL for reset password, try later"},
+            data={"message": "Could'nt change password, try later"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
 
-class ResetPasswordOTLWithEmailView(APIView):
-    allowed_methods = ["post"]
-    http_method_names = ["post"]
-
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
-
-    def post(self, request, *args, **kwargs):
-        password_serializer = PasswordCheckSerializer(data=request.data)
-        password_serializer.is_valid(raise_exception=True)
-        email_otl_serializer = EmailAndOTLSerializer(data=request.data)
-        email_otl_serializer.is_valid(raise_exception=True)
-
-        email = email_otl_serializer.validated_data.get("email")
-
-        qs_email_objects = ProfileEmail.objects.filter(
-            is_primary=True, email=email, is_verified=True
-        )
-        if not qs_email_objects.exists():
-            return Response(
-                {"email": "Please enter your verified primary email"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        email_object = qs_email_objects.last()
-        profile_user_obj = email_object.profile.user
-
-        password_value = password_serializer.validated_data.get("password")
-        profile_user_obj.set_password(password_value)
-        profile_user_obj.save()
-
-        headers = self.get_success_headers(request.data)
-        return Response(
-            data={
-                "message": (
-                    f"Password reset for user '{profile_user_obj}' was"
-                    " successful"
-                )
-            },
-            status=status.HTTP_200_OK,
-            headers=headers,
-        )
-
-
-class AuthenticatedUserChangePassword(APIView):
+class AuthenticatedUserChangePasswordApiView(ChangePasswordApiMixin, APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
     permission_classes = [IsAuthenticated]
 
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
+
+class ResetPasswordOTPWithPhoneNumberView(
+    ChangePasswordApiMixin, ProfilePhoneNumberApiMixin, APIView
+):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_profile_serializer(self):
+        return PhoneOTPSerializer
+
+    def get_profile_serializer_field_name(self):
+        return "receiver"
+
+    def get_user(self, **kwargs):
+        return self.get_profile_user()
 
     def post(self, request, *args, **kwargs):
-        password_serializer = PasswordCheckSerializer(data=request.data)
-        password_serializer.is_valid(raise_exception=True)
-        user_obj = request.user
+        self.validate_password_serializer(request)
+        self.validate_profile_serializer(request)
+        is_changed = self.change_password()
+        if is_changed:
+            return Response(
+                data={"message": "Password reset completed"},
+                status=status.HTTP_200_OK,
+            )
 
-        password_value = password_serializer.validated_data.get("password")
-        user_obj.set_password(password_value)
-        user_obj.save()
-
-        headers = self.get_success_headers(request.data)
         return Response(
-            data={
-                "message": (
-                    f"Password change for user '{user_obj}' was successful"
-                )
-            },
+            data={"message": "Could'nt reset password, try later"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class ResetPasswordRequestOTLWithEmailView(RequestOTLApiMixin, APIView):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        self.validate_receiver_serializer(request)
+        otl_sent = self.send_otl()
+
+        if not otl_sent:
+            return Response(
+                data={"message": "OTL Service is down, try later"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(
+            data={"message": "OTL Sent!"},
             status=status.HTTP_200_OK,
-            headers=headers,
+        )
+
+
+class ResetPasswordOTLWithEmailView(
+    ChangePasswordApiMixin, ProfileEmailApiMixin, APIView
+):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
+
+    def get_profile_serializer(self):
+        return EmailAndOTLSerializer
+
+    def get_profile_serializer_field_name(self):
+        return "email"
+
+    def get_user(self, **kwargs):
+        return self.get_profile_user()
+
+    def post(self, request, *args, **kwargs):
+        self.validate_password_serializer(request)
+        self.validate_profile_serializer(request)
+        is_changed = self.change_password()
+        if is_changed:
+            return Response(
+                data={"message": "Password reset completed"},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            data={"message": "Could'nt reset password, try later"},
+            status=status.HTTP_400_BAD_REQUEST,
         )

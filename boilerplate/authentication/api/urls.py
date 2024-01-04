@@ -21,22 +21,22 @@ login_urlpatterns = [
     # boilerplate
     path(
         "jwt/create-phone/",
-        login_views.JWTCreateWithPhoneNumberAndPassword.as_view(),
+        login_views.JWTCreatePhonePasswordApiView.as_view(),
         name="jwt-create-phone",
     ),
     path(
         "jwt/create-phone-otp/",
-        login_views.JWTCreateWithPhoneNumberAndOTPView.as_view(),
+        login_views.JWTCreatePhoneOTPApiView.as_view(),
         name="jwt-create-phone-otp",
     ),
     path(
         "jwt/create-email/",
-        login_views.JWTCreateWithEmailAndPassword.as_view(),
+        login_views.JWTCreateEmailPasswordApiView.as_view(),
         name="jwt-create-email",
     ),
     path(
         "jwt/create-email-otp/",
-        login_views.JWTCreateWithEmailAndOTPView.as_view(),
+        login_views.JWTCreateEmailOTPApiView.as_view(),
         name="jwt-create-email-otp",
     ),
     # TOKEN
@@ -90,7 +90,7 @@ password_urlpatterns = [
     ),
     path(
         "change-password/",
-        password_views.AuthenticatedUserChangePassword.as_view(),
+        password_views.AuthenticatedUserChangePasswordApiView.as_view(),
         name="change-password",
     ),
 ]
