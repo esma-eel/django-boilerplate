@@ -69,4 +69,3 @@ class VerifyEmailWithOTPView(ProfileFieldVerificationAPIView):
     field = "email"
     model = ProfileEmail
     model_field = "email"
-
