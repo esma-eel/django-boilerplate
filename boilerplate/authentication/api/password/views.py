@@ -36,7 +36,7 @@ class ResetPasswordOTPWithPhoneNumberView(APIView):
         )
 
         qs_phone_numbers_objects = ProfilePhoneNumber.objects.filter(
-            is_primary=True, number=phone_number, is_verified=True
+            is_primary=True, phone_number=phone_number, is_verified=True
         )
         if not qs_phone_numbers_objects.exists():
             return Response(
