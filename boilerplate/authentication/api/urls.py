@@ -1,29 +1,45 @@
 from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 
-from . import views
+from .login import views as login_views
+from .blacklist import views as blacklist_views
+from .password import views as password_views
 
 
-urlpatterns = [
-    # JWT
+app_name = "api-authentication"
+
+login_urlpatterns = [
+    # JWT create
     path(
         "jwt/create/",
         jwt_views.TokenObtainPairView.as_view(),
         name="jwt-create",
     ),
+    # phone
+    path(
+        "jwt/create/phone/",
+        login_views.JWTCreatePhonePasswordApiView.as_view(),
+        name="jwt-create-phone",
+    ),
+    path(
+        "jwt/create/phone/otp/",
+        login_views.JWTCreatePhoneOTPApiView.as_view(),
+        name="jwt-create-phone-otp",
+    ),
+    # email
+    path(
+        "jwt/create/email/",
+        login_views.JWTCreateEmailPasswordApiView.as_view(),
+        name="jwt-create-email",
+    ),
+    path(
+        "jwt/create/email/otp/",
+        login_views.JWTCreateEmailOTPApiView.as_view(),
+        name="jwt-create-email-otp",
+    ),
+    # JWT refresh
     path(
         "jwt/refresh/", jwt_views.TokenRefreshView.as_view(), name="jwt-refresh"
-    ),
-    # boilerplate
-    path(
-        "jwt/phone-number-and-password/",
-        views.JWTCreateWithPhoneNumberAndPassword.as_view(),
-        name="jwt-phone-number-and-password",
-    ),
-    path(
-        "jwt/email-and-password/",
-        views.JWTCreateWithEmailAndPassword.as_view(),
-        name="jwt-email-and-password",
     ),
     # TOKEN
     path(
@@ -41,78 +57,47 @@ urlpatterns = [
         jwt_views.TokenVerifyView.as_view(),
         name="token-verify",
     ),
+]
+
+blacklist_urlpatterns = [
     # blacklist
     path(
         "jwt/blacklist/",
-        views.JWTTokenBlacklistView.as_view(),
+        blacklist_views.JWTTokenBlacklistView.as_view(),
         name="jwt-blacklist",
     ),
     path(
         "token/blacklist/",
-        views.SlidingTokenBlacklistView.as_view(),
+        blacklist_views.SlidingTokenBlacklistView.as_view(),
         name="token-blacklist",
     ),
-    # otp phone
+]
+
+password_urlpatterns = [
     path(
-        "otp/generate-sms/",
-        views.RequestOTPWithPhoneNumberView.as_view(),
-        name="otp-generate-sms",
+        "reset-password/phone/otp/",
+        password_views.ResetPasswordOTPWithPhoneNumberView.as_view(),
+        name="reset-password-phone-otp",
+    ),
+    # email otl
+    path(
+        "reset-password/email/request/",
+        password_views.ResetPasswordRequestOTLWithEmailView.as_view(),
+        name="reset-password-request-email-otl",
     ),
     path(
-        "otp/verify-sms/",
-        views.VerifyOTPWithPhoneNumberView.as_view(),
-        name="otp-verify-sms",
+        "reset-password/email/<str:otl>/",
+        password_views.ResetPasswordOTLWithEmailView.as_view(),
+        name="reset-password-email-otl",
     ),
+    # change password
     path(
-        "jwt/phone-number-and-otp/",
-        views.JWTCreateWithPhoneNumberAndOTPView.as_view(),
-        name="jwt-phone-number-and-otp",
-    ),
-    path(
-        "auth/verify-phone-number/",
-        views.VerifyPhoneNumberWithOTPView.as_view(),
-        name="auth-verify-phone-number",
-    ),
-    # otp email
-    path(
-        "otp/generate-email/",
-        views.RequestOTPWithEmailView.as_view(),
-        name="otp-generate-email",
-    ),
-    path(
-        "otp/verify-email/",
-        views.VerifyOTPWithEmailView.as_view(),
-        name="otp-verify-email",
-    ),
-    path(
-        "jwt/email-and-otp/",
-        views.JWTCreateWithEmailAndOTPView.as_view(),
-        name="jwt-email-and-otp",
-    ),
-    path(
-        "auth/verify-email/",
-        views.VerifyEmailWithOTPView.as_view(),
-        name="auth-verify-email",
-    ),
-    path(
-        "auth/reset-password/phone-number-and-otp/",
-        views.ResetPasswordOTPWithPhoneNumberView.as_view(),
-        name="auth-reset-password-phone-number-otp",
-    ),
-    # otl
-    path(
-        "auth/reset-password/request-email-otl/",
-        views.ResetPasswordRequestOTLWithEmailView.as_view(),
-        name="auth-reset-password-request-email-otl",
-    ),
-    path(
-        "auth/reset-password/email-and-otl/<str:otl>/",
-        views.ResetPasswordOTLWithEmailView.as_view(),
-        name="auth-reset-password-email-otl",
-    ),
-    path(
-        "auth/change-password/",
-        views.AuthenticatedUserChangePassword.as_view(),
-        name="auth-change-password",
+        "change-password/",
+        password_views.AuthenticatedUserChangePasswordApiView.as_view(),
+        name="change-password",
     ),
 ]
+
+urlpatterns = (
+    [] + login_urlpatterns + blacklist_urlpatterns + password_urlpatterns
+)

@@ -19,7 +19,9 @@ class ProfileEmail(ModelMixin):
 
 
 class ProfilePhoneNumber(ModelMixin):
-    number = models.CharField(_("Number"), max_length=11, unique=True)
+    phone_number = models.CharField(
+        _("Phone Number"), max_length=11, unique=True
+    )
     is_primary = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
 
@@ -30,7 +32,7 @@ class ProfilePhoneNumber(ModelMixin):
     )
 
     def __str__(self):
-        return self.number
+        return self.phone_number
 
 
 class ProfileAddress(ModelMixin):

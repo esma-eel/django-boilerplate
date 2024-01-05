@@ -12,11 +12,11 @@ def kavenegar_celery_send_sms(
     try:
         response = kavenegar_send_sms(receptor, template, token_data)
         if response[0]["status"] in [4, 5]:
-            return "sms sended"
+            return True
         else:
-            return response[0]["message"]
+            return False
     except Exception:
-        return "failed"
+        return False
 
 
 @shared_task
@@ -30,8 +30,8 @@ def celery_send_email(
             json_content,
         )
         if response == 1:
-            return "email sended"
+            return True
         else:
-            return response
-    except Exception as e:
-        return e.args[0]
+            return False
+    except Exception:
+        return False

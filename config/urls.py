@@ -18,6 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # mtv
     path("admin/", admin.site.urls),
-    path("authentication/", include("boilerplate.authentication.urls")),
+    path("common/", include("boilerplate.common.urls")),
+    path("auth/", include("boilerplate.authentication.urls")),
+    path("profiles/", include("boilerplate.profiles.urls")),
+    # api
+    path("api/common/", include("boilerplate.common.api.urls")),
+    path("api/auth/", include("boilerplate.authentication.api.urls")),
+    path("api/profiles/", include("boilerplate.profiles.api.urls")),
 ]

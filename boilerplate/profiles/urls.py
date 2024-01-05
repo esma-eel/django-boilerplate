@@ -1,5 +1,5 @@
 from django.urls import path, include
 
-app_name = "authentication"
+app_name = "profiles"
 
 urlpatterns = []

@@ -115,6 +115,16 @@ template text:
     Important: Link is active for 6 hours
 
 
+## start commands for local
+docker-compose -f doker/redis/dc-redis.yml up -d --build
+docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
+./doker/celery/celery.Runner.sh 
+
+### down services
+./doker/celery/celery.Runner.sh --> ctrl + c
+docker compose -f doker/mailpit/dc-mailpit.yml down
+docker-compose -f doker/redis/dc-redis.yml down
+
 # TODO:
 - remember to use .env files for docker later
 - later you should put execution files of celery run in docker-compose (just a reminder)

@@ -5,6 +5,9 @@ from boilerplate.common.utils.redis_helpers import (
     redis_remove_key,
 )
 from boilerplate.common.utils.generators import generate_urlsafe_token
+from boilerplate.common.utils import email_templates
+
+from boilerplate.communications.tasks import celery_send_email
 
 
 def get_otl_key(receiver):
@@ -42,3 +45,21 @@ def verify_input_otl_of_receiver(receiver, input_otl):
         return is_expired
 
     return None
+
+
+def send_otl_to_receiver_email(receiver, link):
+    try:
+        token_data = {"link": link}
+        email_content = email_templates.OTL.get("content")
+        email_content = email_content.format(**token_data)
+        json_content = {
+            "title": "OTL Link",
+            "content": email_content,
+        }
+        to_emails = [receiver]
+        celery_result_object = celery_send_email.delay(json_content, to_emails)
+        celery_result_object.wait(timeout=15)
+        return celery_result_object.result
+
+    except Exception:
+        return False
