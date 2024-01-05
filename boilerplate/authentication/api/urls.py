@@ -9,35 +9,37 @@ from .password import views as password_views
 app_name = "api-authentication"
 
 login_urlpatterns = [
-    # JWT
+    # JWT create
     path(
         "jwt/create/",
         jwt_views.TokenObtainPairView.as_view(),
         name="jwt-create",
     ),
+    # phone
     path(
-        "jwt/refresh/", jwt_views.TokenRefreshView.as_view(), name="jwt-refresh"
-    ),
-    # boilerplate
-    path(
-        "jwt/create-phone/",
+        "jwt/create/phone/",
         login_views.JWTCreatePhonePasswordApiView.as_view(),
         name="jwt-create-phone",
     ),
     path(
-        "jwt/create-phone-otp/",
+        "jwt/create/phone/otp/",
         login_views.JWTCreatePhoneOTPApiView.as_view(),
         name="jwt-create-phone-otp",
     ),
+    # email
     path(
-        "jwt/create-email/",
+        "jwt/create/email/",
         login_views.JWTCreateEmailPasswordApiView.as_view(),
         name="jwt-create-email",
     ),
     path(
-        "jwt/create-email-otp/",
+        "jwt/create/email/otp/",
         login_views.JWTCreateEmailOTPApiView.as_view(),
         name="jwt-create-email-otp",
+    ),
+    # JWT refresh
+    path(
+        "jwt/refresh/", jwt_views.TokenRefreshView.as_view(), name="jwt-refresh"
     ),
     # TOKEN
     path(
@@ -73,21 +75,22 @@ blacklist_urlpatterns = [
 
 password_urlpatterns = [
     path(
-        "reset-password/phone-otp/",
+        "reset-password/phone/otp/",
         password_views.ResetPasswordOTPWithPhoneNumberView.as_view(),
         name="reset-password-phone-otp",
     ),
-    # otl
+    # email otl
     path(
-        "reset-password/request/email-otl/",
+        "reset-password/email/request/",
         password_views.ResetPasswordRequestOTLWithEmailView.as_view(),
         name="reset-password-request-email-otl",
     ),
     path(
-        "reset-password/email-otl/<str:otl>/",
+        "reset-password/email/<str:otl>/",
         password_views.ResetPasswordOTLWithEmailView.as_view(),
         name="reset-password-email-otl",
     ),
+    # change password
     path(
         "change-password/",
         password_views.AuthenticatedUserChangePasswordApiView.as_view(),

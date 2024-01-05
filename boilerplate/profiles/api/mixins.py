@@ -1,3 +1,6 @@
+from rest_framework import status
+from rest_framework.response import Response
+
 from boilerplate.profiles.models import ProfilePhoneNumber, ProfileEmail
 from .serializers import PhoneNumberSerializer, EmailSerializer
 
@@ -50,13 +53,20 @@ class ProfileFieldApiMixin:
     def get_queryset(self):
         return self.get_verified_profile_queryset()
 
-    def get_profile_object(self):
+    def get_profile_field_object(self):
         queryset = self.get_queryset()
         if not queryset.exists():
             return None
 
-        profile = queryset.last().profile
-        return profile
+        profile_field_object = queryset.last()
+        return profile_field_object
+
+    def get_profile_object(self):
+        profile_field_object = self.get_profile_field_object()
+        if profile_field_object:
+            profile = profile_field_object.profile
+            return profile
+        return None
 
     def get_profile_user(self):
         profile_object = self.get_profile_object()
@@ -65,6 +75,37 @@ class ProfileFieldApiMixin:
             return profile_user
 
         return None
+
+
+class ProfileFieldVerifyApiMixin(ProfileFieldApiMixin):
+    def get_queryset(self):
+        return self.get_queryset_field_only()
+
+    def verify_field_object(self):
+        field_object = self.get_profile_field_object()
+        if not field_object:
+            return False
+
+        if not field_object.is_verified:
+            field_object.is_verified = True
+            field_object.save()
+
+        return True
+
+    def post(self, request, *args, **kwargs):
+        self.validate_profile_serializer(request)
+        is_verified = self.verify_field_object()
+
+        if not is_verified:
+            return Response(
+                {self.field: "does not exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(
+            {"message": "verified successfully"},
+            status=status.HTTP_200_OK,
+        )
 
 
 class ProfilePhoneNumberApiMixin(ProfileFieldApiMixin):

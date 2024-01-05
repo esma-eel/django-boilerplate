@@ -1,71 +1,41 @@
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
 from boilerplate.common.api.otp.serializers import (
     EmailOTPSerializer,
     PhoneOTPSerializer,
 )
-from boilerplate.profiles.models import ProfileEmail, ProfilePhoneNumber
+from .mixins import (
+    ProfilePhoneNumberApiMixin,
+    ProfileEmailApiMixin,
+    ProfileFieldVerifyApiMixin,
+)
 
 
-class ProfileFieldVerificationAPIView(APIView):
-    serializer = None
-    field = None
-    model = None
-    model_field = None
-
+class VerifyPhoneNumberWithOTPView(
+    ProfileFieldVerifyApiMixin,
+    ProfilePhoneNumberApiMixin,
+    APIView,
+):
     allowed_methods = ["post"]
     http_method_names = ["post"]
 
-    def get_success_headers(self, data):
-        try:
-            return {"Location": str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
+    def get_profile_serializer(self):
+        return PhoneOTPSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        field_value = serializer.validated_data.get(self.field)
-        queryset = self.model.objects.filter(**{self.model_field: field_value})
-        if not queryset.exists():
-            return Response(
-                {self.field: "does not exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        object = queryset.last()
-
-        if object.is_verified:
-            return Response(
-                {self.field: "already verified"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        object.is_verified = True
-        object.save()
-
-        headers = self.get_success_headers(request.data)
-
-        return Response(
-            {"message": "verified successfully"},
-            status=status.HTTP_200_OK,
-            headers=headers,
-        )
+    def get_profile_serializer_field_name(self):
+        return "receiver"
 
 
-class VerifyPhoneNumberWithOTPView(ProfileFieldVerificationAPIView):
-    serializer = PhoneOTPSerializer
-    field = "phone_number"
-    model = ProfilePhoneNumber
-    model_field = "number"
+class VerifyEmailWithOTPView(
+    ProfileFieldVerifyApiMixin,
+    ProfileEmailApiMixin,
+    APIView,
+):
+    allowed_methods = ["post"]
+    http_method_names = ["post"]
 
+    def get_profile_serializer(self):
+        return EmailOTPSerializer
 
-class VerifyEmailWithOTPView(ProfileFieldVerificationAPIView):
-    serializer = EmailOTPSerializer
-    field = "email"
-    model = ProfileEmail
-    model_field = "email"
+    def get_profile_serializer_field_name(self):
+        return "receiver"

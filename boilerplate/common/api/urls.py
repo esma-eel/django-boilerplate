@@ -7,14 +7,14 @@ app_name = "api-common"
 otp_urlpatterns = [
     # otp
     path(
-        "otp/sms/create/",
+        "otp/phone/create/",
         otp_views.RequestOTPPhoneApiView.as_view(),
-        name="otp-sms-create",
+        name="otp-phone-create",
     ),
     path(
-        "otp/sms/verify/",
+        "otp/phone/verify/",
         otp_views.VerifyOTPPhoneApiView.as_view(),
-        name="otp-sms-verify",
+        name="otp-phone-verify",
     ),
     path(
         "otp/email/create/",

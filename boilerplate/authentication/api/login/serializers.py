@@ -1,4 +1,4 @@
-from rest_framework import serializers
+# from rest_framework import serializers
 from boilerplate.profiles.api.serializers import (
     PhoneNumberSerializer,
     EmailSerializer,
@@ -8,13 +8,9 @@ from boilerplate.authentication.api.password.serializers import (
 )
 
 
-class PhonePasswordSerializer(
-    PhoneNumberSerializer, PasswordSerializer, serializers.Serializer
-):
+class PhonePasswordSerializer(PhoneNumberSerializer, PasswordSerializer):
     pass
 
 
-class EmailPasswordSerializer(
-    EmailSerializer, PasswordSerializer, serializers.Serializer
-):
+class EmailPasswordSerializer(EmailSerializer, PasswordSerializer):
     pass
