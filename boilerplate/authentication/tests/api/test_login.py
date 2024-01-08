@@ -1,15 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
-
-# from rest_framework.test import APITestCase
-from django.contrib.auth import get_user_model
 from boilerplate.common.tests.test_mixins import UserAPITestCase
-from boilerplate.common.utils.otp_helpers import (
-    generate_otp_for_receiver,
-    # get_otp_of_receiver,
-)
-
-User = get_user_model()
+from boilerplate.common.utils.otp_helpers import generate_otp_for_receiver
 
 
 class JWTAPITestCase(UserAPITestCase):
