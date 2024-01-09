@@ -3,7 +3,7 @@ from rest_framework import status
 from boilerplate.common.tests.test_mixins import UserAPITestCase
 
 
-class JWTBlackList(UserAPITestCase):
+class JWTBlackListAPITestCase(UserAPITestCase):
     def setUp(self):
         super().setUp()
         self.login_data = self.login()
@@ -38,7 +38,7 @@ class JWTBlackList(UserAPITestCase):
             self.subtest_refresh_blacklisted_token_unauthorized_401_fail()
 
 
-class TokenBlackList(UserAPITestCase):
+class TokenBlackListAPITestCase(UserAPITestCase):
     def setUp(self):
         super().setUp()
         self.login_data = self.login()
