@@ -74,7 +74,7 @@ class Profile(ModelMixin):
         qs_primary_phone_number = qs_phone_numbers.filter(is_primary=True)
 
         if qs_primary_phone_number.exists():
-            return qs_primary_phone_number.last().number
+            return qs_primary_phone_number.last().phone_number
 
         return None
 
