@@ -95,10 +95,11 @@ class ProfileFieldVerifyApiMixin(ProfileFieldApiMixin):
     def post(self, request, *args, **kwargs):
         self.validate_profile_serializer(request)
         is_verified = self.verify_field_object()
+        field = self.get_profile_model_field_name()
 
         if not is_verified:
             return Response(
-                {self.field: "does not exist"},
+                {field: "does not exist"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
