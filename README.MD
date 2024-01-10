@@ -125,6 +125,10 @@ docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
 docker compose -f doker/mailpit/dc-mailpit.yml down
 docker-compose -f doker/redis/dc-redis.yml down
 
+## run all tests
+to run tests you can refert to the module or use command below to run all
+python manage.py test -v 2 boilerplate
+
 # TODO:
 - remember to use .env files for docker later
 - later you should put execution files of celery run in docker-compose (just a reminder)
