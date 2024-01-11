@@ -1,7 +1,6 @@
 from django.db import models
 from boilerplate.common import ModelMixin
 from django.utils.translation import gettext_lazy as _
-import uuid
 from .utils.upload_path import profile_upload
 
 
@@ -51,9 +50,6 @@ class ProfileAddress(ModelMixin):
 
 
 class Profile(ModelMixin):
-    uuid = models.UUIDField(
-        _("UUID"), unique=True, default=uuid.uuid4, editable=False
-    )
     name = models.CharField(_("Name"), max_length=32, blank=True, null=True)
     avatar = models.ImageField(
         _("Avatar"), blank=True, null=True, upload_to=profile_upload
@@ -64,7 +60,10 @@ class Profile(ModelMixin):
     )
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+
+        return self.user.username
 
     def get_phone_numbers(self):
         return self.phone_number_set.all()
