@@ -28,6 +28,7 @@ class ProfilePhoneNumberModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfilePhoneNumber
         fields = [
+            "id",
             "phone_number",
             "is_primary",
             "is_verified",
@@ -53,6 +54,7 @@ class ProfileEmailModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileEmail
         fields = [
+            "id",
             "email",
             "is_primary",
             "is_verified",
@@ -70,6 +72,7 @@ class ProfileAddressModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileAddress
         fields = [
+            "id",
             "city",
             "address",
             "is_primary",
@@ -78,7 +81,7 @@ class ProfileAddressModelSerializer(serializers.ModelSerializer):
             "is_primary": {
                 "required": True,
                 "allow_null": False,
-            }
+            },
         }
 
 

@@ -14,4 +14,9 @@ urlpatterns = [
         views.VerifyEmailWithOTPView.as_view(),
         name="profile-verify-email",
     ),
+    path(
+        r"update/<str:user__username>/",
+        views.RetrieveUpdateProfileAPIView.as_view(),
+        name="profile-update",
+    ),
 ]
