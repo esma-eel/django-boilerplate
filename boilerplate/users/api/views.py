@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from boilerplate.profiles.api.serializers import ProfileModelSerializer
 from .serializers import (
     CreateUserModelSerializer,
     UserModelSerializer,
@@ -32,24 +33,11 @@ class UserCreateAPIView(APIView):
 
     def profile_update(self, user_object, profile_data):
         profile_object = user_object.profile
-        phone_numbers_data = profile_data.pop("phone_numbers")
-        emails_data = profile_data.pop("emails")
-        addresses_data = profile_data.pop("addresses")
-
-        for attr, value in profile_data.items():
-            setattr(profile_object, attr, value)
-        profile_object.save()
-
-        for phone_number_data in phone_numbers_data:
-            profile_object.phone_number_set.create(**phone_number_data)
-
-        for email_data in emails_data:
-            profile_object.email_set.create(**email_data)
-
-        for address_data in addresses_data:
-            profile_object.address_set.create(**address_data)
-
-        profile_object.save()
+        serializer = ProfileModelSerializer(
+            instance=profile_object, data=profile_data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        profile_object = serializer.save()
         return profile_object
 
     def authentication_set(self, user_object, authenticate_data):

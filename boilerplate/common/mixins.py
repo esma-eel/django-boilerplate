@@ -53,8 +53,8 @@ class SoftDeleteMixin(models.Model):
 
         self.save()
 
-    # def purge(self, using=None, keep_parents=False):
-    #     return super().delete(using=using, keep_parents=keep_parents)
+    def purge(self, using=None, keep_parents=False):
+        return super().delete(using=using, keep_parents=keep_parents)
 
 
 class ModelMixin(TimeStampMixin, SoftDeleteMixin):

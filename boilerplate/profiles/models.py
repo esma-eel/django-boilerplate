@@ -13,6 +13,15 @@ class ProfileEmail(ModelMixin):
         "profiles.Profile", on_delete=models.CASCADE, related_name="email_set"
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["email"],
+                condition=models.Q(is_removed=False),
+                name="unique_if_not_deleted_profile_email",
+            )
+        ]
+
     def __str__(self):
         return self.email
 
@@ -29,6 +38,15 @@ class ProfilePhoneNumber(ModelMixin):
         on_delete=models.CASCADE,
         related_name="phone_number_set",
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["phone_number"],
+                condition=models.Q(is_removed=False),
+                name="unique_if_not_deleted_profile_phone_number",
+            )
+        ]
 
     def __str__(self):
         return self.phone_number
