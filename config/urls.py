@@ -23,8 +23,10 @@ urlpatterns = [
     path("common/", include("boilerplate.common.urls")),
     path("auth/", include("boilerplate.authentication.urls")),
     path("profiles/", include("boilerplate.profiles.urls")),
+    path("users/", include("boilerplate.users.urls")),
     # api
     path("api/common/", include("boilerplate.common.api.urls")),
     path("api/auth/", include("boilerplate.authentication.api.urls")),
     path("api/profiles/", include("boilerplate.profiles.api.urls")),
+    path("api/users/", include("boilerplate.users.api.urls")),
 ]
