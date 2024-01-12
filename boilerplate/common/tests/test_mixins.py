@@ -29,11 +29,7 @@ class UserAPITestCase(APITestCase):
         )
         self.user.set_password(self.user_data.get("weak_password"))
         self.user.save()
-
-        self.user_profile = Profile.objects.create(
-            user=self.user,
-            name=self.user_data.get("name"),
-        )
+        self.user_profile = self.user.profile
 
         self.profile_phone = ProfilePhoneNumber.objects.create(
             is_primary=True,
