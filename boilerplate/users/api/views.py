@@ -79,11 +79,7 @@ class UserRegisterAPIView(UserCreateAPIView):
     permission_classes = []
     authentication_classes = []
 
-    @transaction.atomic()
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer_data = copy.deepcopy(serializer.data)
+    def generate_user_data(self, serializer_data):
         user_data = {
             "username": serializer_data.get("username"),
             "profile": {
@@ -100,11 +96,19 @@ class UserRegisterAPIView(UserCreateAPIView):
                         "is_primary": True,
                     }
                 ],
-                "addresses": [],
             },
         }
+        return user_data
+
+    @transaction.atomic()
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer_data = copy.deepcopy(serializer.data)
 
         authentication_data = serializer_data.pop("authentication")
+        user_data = self.generate_user_data(serializer_data)
+
         validated_data = {
             "user": copy.deepcopy(user_data),
             "authentication": copy.deepcopy(authentication_data),
