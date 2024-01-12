@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from boilerplate.profiles.api.serializers import ProfileModelSerializer
+from boilerplate.profiles.api.serializers import (
+    ProfileModelSerializer,
+    PhoneNumberSerializer,
+    EmailSerializer,
+)
 from boilerplate.authentication.api.password.serializers import (
     PasswordCheckSerializer,
 )
@@ -18,6 +22,12 @@ class UserModelSerializer(serializers.ModelSerializer):
 
 class CreateUserModelSerializer(serializers.Serializer):
     user = UserModelSerializer()
+    authentication = PasswordCheckSerializer()
+
+
+class RegisterUserSerilaizer(PhoneNumberSerializer, EmailSerializer):
+    username = serializers.CharField(max_length=32)
+    name = serializers.CharField()
     authentication = PasswordCheckSerializer()
 
 
