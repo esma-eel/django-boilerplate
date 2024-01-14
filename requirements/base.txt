@@ -10,5 +10,6 @@ celery==5.3.6
 django-celery-beat==2.5.0
 django-celery-results==2.5.1
 redis==5.0.1
+drf-yasg==1.21.7
 kavenegar==1.1.2 # kavenegar sms service provider
 # -------------------------
