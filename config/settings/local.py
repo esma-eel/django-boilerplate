@@ -21,3 +21,5 @@ EMAIL_HOST_PASSWORD = "password"
 PROJECT_EMAIL = EMAIL_HOST_USER
 
 INSTALLED_APPS += []
+
+TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
