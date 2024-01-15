@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from .forms import PasswordResetFormEmailChecker
 
@@ -6,36 +6,37 @@ app_name = "authentication"
 
 urlpatterns = [
     path(
-        "password_change/",
+        "password-change/",
         auth_views.PasswordChangeView.as_view(),
-        name="password_change",
+        name="password-change",
     ),
     path(
-        "password_change/done/",
+        "password-change/done/",
         auth_views.PasswordChangeDoneView.as_view(),
-        name="password_change_done",
+        name="password-change-done",
     ),
     path(
-        "password_reset/",
+        "password-reset/",
         auth_views.PasswordResetView.as_view(
-            form_class=PasswordResetFormEmailChecker
+            form_class=PasswordResetFormEmailChecker,
+            success_url=reverse_lazy("authentication:password-reset-done"),
         ),
-        name="password_reset",
+        name="password-reset",
     ),
     path(
-        "password_reset/done/",
+        "password-reset/done/",
         auth_views.PasswordResetDoneView.as_view(),
-        name="password_reset_done",
+        name="password-reset-done",
     ),
     path(
         "reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(),
-        name="password_reset_confirm",
+        name="password-reset-confirm",
     ),
     path(
         "reset/done/",
         auth_views.PasswordResetCompleteView.as_view(),
-        name="password_reset_complete",
+        name="password-reset-complete",
     ),
     path(
         "login/",

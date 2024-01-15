@@ -1,12 +1,8 @@
-{% extends "account/account_base.html" %}
+{% extends "authentication/base.html" %}
 {% load static %}
 {% block title %} Login {% endblock title %}
-{% block form_title %}
-<h1 class="h4">Welcome</h1>
-{% endblock form_title %}
 
 {% block content %}
-
 <form action="." method="POST">
     {% csrf_token %}
     {% for field in form %}
@@ -19,9 +15,9 @@
 </form>
 <hr>
 <div class="">
-    <a href="{% url 'password_reset' %}">Forgot Password ?</a>
+    <a href="{% url 'authentication:password_reset' %}">Forgot Password ?</a>
 </div>
-<div class="">
-    <a href="{% url 'register' %}">Create New Account</a>
-</div>
+{% comment %} <div class="">
+    <a href="{% url 'authentication:register' %}">Create New Account</a>
+</div> {% endcomment %}
 {% endblock content %}

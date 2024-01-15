@@ -93,7 +93,7 @@ class Profile(ModelMixin):
         if qs_primary_phone_number.exists():
             return qs_primary_phone_number.last().phone_number
 
-        return None
+        return ""
 
     def get_emails(self):
         return self.email_set.all()
@@ -105,4 +105,4 @@ class Profile(ModelMixin):
         if qs_primary_email.exists():
             return qs_primary_email.last().email
 
-        return None
+        return ""

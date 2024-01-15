@@ -41,10 +41,10 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 
-LOGIN_URL = "login"
-LOGOUT_URL = "logout"
+LOGIN_URL = "authentication:login"
+LOGOUT_URL = "authentication:logout"
 LOGIN_REDIRECT_URL = "profiles:profile-home"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "authentication:login"
 # user absolute url
 ABSOLUTE_URL_OVERRIDES = {
     "auth.user": lambda user: reverse_lazy(
