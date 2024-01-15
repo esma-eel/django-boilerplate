@@ -1,0 +1,27 @@
+{% extends "account/account_base.html" %}
+{% load static %}
+{% block title %} Login {% endblock title %}
+{% block form_title %}
+<h1 class="h4">Welcome</h1>
+{% endblock form_title %}
+
+{% block content %}
+
+<form action="." method="POST">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="">
+        <input type="{{field.field.widget.input_type}}" name="{{ field.name }}" class="" id="{{ field.auto_id }}" placeholder="{{field.label}}" required>
+    </div>
+    {% endfor %}
+    <button type="submit" class="">Login</button>
+    <input type="hidden" name="next" value="{{ next }}">
+</form>
+<hr>
+<div class="">
+    <a href="{% url 'password_reset' %}">Forgot Password ?</a>
+</div>
+<div class="">
+    <a href="{% url 'register' %}">Create New Account</a>
+</div>
+{% endblock content %}
