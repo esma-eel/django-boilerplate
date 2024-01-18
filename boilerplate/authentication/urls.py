@@ -1,16 +1,18 @@
-from django.urls import path, reverse_lazy
+from django.urls import path
 from django.contrib.auth import views as auth_views
-from .forms import PasswordResetFormEmailChecker
-from boilerplate.common.utils.generators import default_token_generator
+from .views import (
+    PasswordChangeView,
+    PasswordResetView,
+    PasswordResetConfirmView,
+    LoginView,
+)
 
 app_name = "authentication"
 
 urlpatterns = [
     path(
         "password-change/",
-        auth_views.PasswordChangeView.as_view(
-            success_url=reverse_lazy("authentication:password-change-done"),
-        ),
+        PasswordChangeView.as_view(),
         name="password-change",
     ),
     path(
@@ -20,10 +22,7 @@ urlpatterns = [
     ),
     path(
         "password-reset/",
-        auth_views.PasswordResetView.as_view(
-            form_class=PasswordResetFormEmailChecker,
-            success_url=reverse_lazy("authentication:password-reset-done"),
-        ),
+        PasswordResetView.as_view(),
         name="password-reset",
     ),
     path(
@@ -33,10 +32,7 @@ urlpatterns = [
     ),
     path(
         "reset/<uidb64>/<token>/",
-        auth_views.PasswordResetConfirmView.as_view(
-            success_url=reverse_lazy("authentication:password-reset-complete"),
-            token_generator=default_token_generator,
-        ),
+        PasswordResetConfirmView.as_view(),
         name="password-reset-confirm",
     ),
     path(
@@ -46,7 +42,7 @@ urlpatterns = [
     ),
     path(
         "login/",
-        auth_views.LoginView.as_view(redirect_authenticated_user=True),
+        LoginView.as_view(),
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
