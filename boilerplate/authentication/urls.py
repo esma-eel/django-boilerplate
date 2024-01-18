@@ -1,13 +1,16 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from .forms import PasswordResetFormEmailChecker
+from boilerplate.common.utils.generators import default_token_generator
 
 app_name = "authentication"
 
 urlpatterns = [
     path(
         "password-change/",
-        auth_views.PasswordChangeView.as_view(),
+        auth_views.PasswordChangeView.as_view(
+            success_url=reverse_lazy("authentication:password-change-done"),
+        ),
         name="password-change",
     ),
     path(
@@ -30,7 +33,10 @@ urlpatterns = [
     ),
     path(
         "reset/<uidb64>/<token>/",
-        auth_views.PasswordResetConfirmView.as_view(),
+        auth_views.PasswordResetConfirmView.as_view(
+            success_url=reverse_lazy("authentication:password-reset-complete"),
+            token_generator=default_token_generator,
+        ),
         name="password-reset-confirm",
     ),
     path(
