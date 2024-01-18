@@ -272,3 +272,5 @@ pyrightconfig.json
 # .vscode
 notes
 *.db
+*-wal
+*-shm
