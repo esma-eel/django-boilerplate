@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "boilerplate.authentication",
     "boilerplate.communications",
     "boilerplate.adminstration",
+    "boilerplate.dashboard",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
