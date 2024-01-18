@@ -1,5 +1,5 @@
+from django import forms
 from django.contrib.auth.forms import PasswordResetForm
-from django.core.validators import ValidationError
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -15,7 +15,7 @@ class PasswordResetFormEmailChecker(PasswordResetForm):
         )
 
         if not query_set.exists():
-            raise ValidationError("Verified Primary Email not found!")
+            raise forms.ValidationError("Verified Primary Email not found!")
 
         return to_email
 
