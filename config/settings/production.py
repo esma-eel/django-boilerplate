@@ -8,6 +8,7 @@ sometimes called prod.py.
 
 import os
 from .base import *
+from django.urls import reverse_lazy
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env_variable("SECRET_KEY")
@@ -38,3 +39,16 @@ CELERY_RESULT_BACKEND = "django-db"
 
 # this allows you to schedule items in the Django admin.
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+
+
+LOGIN_URL = "authentication:login"
+LOGOUT_URL = "authentication:logout"
+LOGIN_REDIRECT_URL = "profiles:profile-home"
+LOGOUT_REDIRECT_URL = "authentication:login"
+# in order to define absoulte url for models
+# you have enter appname.model then like template below
+ABSOLUTE_URL_OVERRIDES = {
+    "users.user": lambda user: reverse_lazy(
+        "profiles:profile", args=[user.username]
+    )
+}

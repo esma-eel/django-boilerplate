@@ -1,3 +1,4 @@
+# from django.urls import reverse
 from django.apps import apps
 from django.contrib import auth
 from django.contrib.auth.hashers import make_password
@@ -93,5 +94,5 @@ class User(AbstractUser, ModelMixin):
 
     objects = UserManager()
 
-    def get_absolute_url(self):
-        pass
+    # def get_absolute_url(self):
+    #     return reverse("profiles:profile", args=[self.username])

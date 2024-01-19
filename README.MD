@@ -116,14 +116,14 @@ template text:
 
 
 ## start commands for local
-docker-compose -f doker/redis/dc-redis.yml up -d --build
+docker compose -f doker/redis/dc-redis.yml up -d --build
 docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
 ./doker/celery/celery.Runner.sh 
 
 ### down services
 ./doker/celery/celery.Runner.sh --> ctrl + c
 docker compose -f doker/mailpit/dc-mailpit.yml down
-docker-compose -f doker/redis/dc-redis.yml down
+docker compose -f doker/redis/dc-redis.yml down
 
 ## run all tests
 to run tests you can refert to the module or use command below to run all
