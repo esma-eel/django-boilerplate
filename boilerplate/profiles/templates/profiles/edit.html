@@ -1,0 +1,12 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %} Profile Edit {% endblock title %}
+
+{% block content %}
+<h1>Profile Edit</h1>
+<form action="." method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+{% endblock content %}
+

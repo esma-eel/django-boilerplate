@@ -45,9 +45,10 @@ LOGIN_URL = "authentication:login"
 LOGOUT_URL = "authentication:logout"
 LOGIN_REDIRECT_URL = "profiles:profile-home"
 LOGOUT_REDIRECT_URL = "authentication:login"
-# user absolute url
+# in order to define absoulte url for models
+# you have enter appname.model then like template below
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda user: reverse_lazy(
+    "users.user": lambda user: reverse_lazy(
         "profiles:profile", args=[user.username]
     )
 }
