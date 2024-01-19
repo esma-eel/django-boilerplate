@@ -5,13 +5,13 @@ from .models import ProfilePhoneNumber, Profile, ProfileEmail
 class ProfilePhoneNumberModelForm(forms.ModelForm):
     class Meta:
         model = ProfilePhoneNumber
-        fields = ["phone_number", "is_primary"]
+        fields = ["profile", "phone_number", "is_primary"]
 
 
 class ProfileEmailModelForm(forms.ModelForm):
     class Meta:
         model = ProfileEmail
-        fields = ["email", "is_primary"]
+        fields = ["profile", "email", "is_primary"]
 
 
 class ProfileModelForm(forms.ModelForm):
@@ -20,14 +20,26 @@ class ProfileModelForm(forms.ModelForm):
         fields = ["name", "avatar"]
 
 
-ProfilePhoneNumberModelFormSet = forms.modelformset_factory(
+ProfilePhoneNumberInlineFormSet = forms.inlineformset_factory(
+    parent_model=Profile,
     model=ProfilePhoneNumber,
     form=ProfilePhoneNumberModelForm,
     fields=ProfilePhoneNumberModelForm.Meta.fields,
+    exclude=["profile"],
+    extra=1,
+    max_num=3,
+    can_delete=True,
+    can_delete_extra=False,
 )
 
-ProfileEmailModelFormSet = forms.modelformset_factory(
+ProfileEmailInlineFormSet = forms.inlineformset_factory(
+    parent_model=Profile,
     model=ProfileEmail,
     form=ProfileEmailModelForm,
     fields=ProfileEmailModelForm.Meta.fields,
+    exclude=["profile"],
+    extra=1,
+    max_num=3,
+    can_delete=True,
+    can_delete_extra=False,
 )

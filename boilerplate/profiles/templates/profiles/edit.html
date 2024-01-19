@@ -5,7 +5,15 @@
 <h1>Profile Edit</h1>
 <form action="." method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    {% comment %} profile {% endcomment %}
+    {{ profile_form.as_p }}
+
+    {% comment %} phone_numbers {% endcomment %}
+    {{ phone_number_formset.as_p }}
+
+    {% comment %} emails {% endcomment %}
+    {{ email_formset.as_p }}
+
     <button type="submit">Submit</button>
 </form>
 {% endblock content %}
