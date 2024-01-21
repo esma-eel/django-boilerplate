@@ -6,3 +6,5 @@ be looking before your work is moved to
 production.
 """
 from .base import *
+
+print("staging")

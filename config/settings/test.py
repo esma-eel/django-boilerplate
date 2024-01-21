@@ -4,3 +4,5 @@ runners, in-memory database definitions,
 and log settings.
 """
 from .base import *
+
+print("test")

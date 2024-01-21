@@ -6,7 +6,7 @@ DEBUG mode, log level, and activation of
 developer tools like django-debug-toolbar.
 """
 # from .base import *
-from .production import *
+from .base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -23,3 +23,4 @@ PROJECT_EMAIL = EMAIL_HOST_USER
 INSTALLED_APPS += []
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
+print("local")
