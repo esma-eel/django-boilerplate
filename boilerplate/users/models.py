@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib import auth
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from boilerplate.common import ModelMixin
+from boilerplate.common.mixins import ModelMixin
 
 
 class UserManager(BaseUserManager):

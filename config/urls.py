@@ -71,5 +71,6 @@ urlpatterns = [
     ),
 ]
 
-urlpatterns = urlpatterns + media_url
-urlpatterns = urlpatterns + static_url
+if bool(settings.DEBUG):
+    urlpatterns = urlpatterns + media_url
+    urlpatterns = urlpatterns + static_url

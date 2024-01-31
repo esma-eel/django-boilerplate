@@ -6,6 +6,6 @@ tains production-level settings only. It is
 sometimes called prod.py.
 """
 
-from .base import *
+from .base import *  # noqa
 
 print("production")

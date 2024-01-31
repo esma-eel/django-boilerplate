@@ -62,7 +62,7 @@ def get_env_variable_with_default(var_name, default, file=None):
 DEBUG = get_env_variable("DEBUG")
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_env_variable("ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -185,6 +185,7 @@ USE_TZ = True
 
 MEDIA_ROOT = BASE_DIR / "_media"
 STATIC_ROOT = BASE_DIR / "_static_root"
+# general static file dirs --> developer puts statics here
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
@@ -275,6 +276,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:1337",
 ]
 CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOW_METHODS = (
@@ -294,9 +296,7 @@ CORS_ALLOW_HEADERS = (
     "x-requested-with",
 )
 """
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://\w+\.example\.com$",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://\w+\.example\.com$"] #noqa
 """
 
 # SIMPLE JWT
@@ -379,7 +379,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 # Authentication
 LOGIN_URL = "authentication:login"
 LOGOUT_URL = "authentication:logout"
-LOGIN_REDIRECT_URL = "profiles:profile-home"
+# LOGIN_REDIRECT_URL = "profiles:profile"
 LOGOUT_REDIRECT_URL = "authentication:login"
 # in order to define absoulte url for models
 # you have enter appname.model then like template below
