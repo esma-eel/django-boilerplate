@@ -29,8 +29,8 @@ COPY . /usr/src/app/
 COPY ./requirements/base.txt base.txt
 # note: change this based on your environment
 COPY ./requirements/production.txt requirements.txt
-# RUN pip wheel --timeout 60 --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
-# RUN pip install --timeout 60 -r requirements.txt
+# *1. if you dont want to have cache in docker in order to decrease image size, else comment code below
+RUN pip wheel --timeout 60 --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 #########
 # FINAL #
@@ -55,12 +55,15 @@ WORKDIR $APP_HOME
 
 # install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends netcat-traditional libpq-dev 
-# COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/base.txt .
+# if you uncommented *.1 else comment line below and uncomment base.txt line
+COPY --from=builder /usr/src/app/wheels /wheels
+# COPY --from=builder /usr/src/app/base.txt .
 COPY --from=builder /usr/src/app/requirements.txt .
-# RUN pip install --timeout 60 --upgrade pip
-# RUN pip install --timeout 60 --no-cache /wheels/*
-RUN pip install --timeout 60 -r requirements.txt
+RUN pip install --timeout 60 --upgrade pip
+# if you dont want to have cache and you removed comment of *.1 above use below command else -
+RUN pip install --timeout 60 --no-cache /wheels/*
+# - uncomment this line
+# RUN pip install --timeout 60 -r requirements.txt
 
 # copy entrypoint
 COPY ./entrypoint.production.sh .
