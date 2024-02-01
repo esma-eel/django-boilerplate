@@ -59,7 +59,7 @@ def get_env_variable_with_default(var_name, default, file=None):
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env_variable("DEBUG")
+DEBUG = bool(get_env_variable("DEBUG"))
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
 ALLOWED_HOSTS = get_env_variable("ALLOWED_HOSTS").split(" ")
