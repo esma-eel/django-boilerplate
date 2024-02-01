@@ -9,6 +9,7 @@ from .forms import (
     ProfileModelForm,
     ProfilePhoneNumberInlineFormSet,
     ProfileEmailInlineFormSet,
+    ProfileAddressInlineFormSet,
 )
 
 
@@ -68,6 +69,12 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             context["email_formset"] = ProfileEmailInlineFormSet(
                 instance=profile_object
             )
+
+        if not context.get("address_formset"):
+            context["address_formset"] = ProfileAddressInlineFormSet(
+                instance=profile_object
+            )
+
         if not context.get("profile_form"):
             context["profile_form"] = ProfileModelForm(instance=profile_object)
         return context
@@ -82,32 +89,45 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             request.POST,
             instance=profile,
         )
+        address_formset = ProfileAddressInlineFormSet(
+            request.POST,
+            instance=profile,
+        )
+
         profile_form = ProfileModelForm(
             data=request.POST,
             files=request.FILES,
             instance=profile,
         )
         if (
-            email_formset.is_valid()
+            profile_form.is_valid()
             and phone_number_formset.is_valid()
-            and profile_form.is_valid()
+            and email_formset.is_valid()
+            and address_formset.is_valid()
         ):
             return self.form_valid(
-                email_formset, phone_number_formset, profile_form
+                address_formset,
+                email_formset,
+                phone_number_formset,
+                profile_form,
             )
 
         return self.form_invalid(
             email_formset=email_formset,
             phone_number_formset=phone_number_formset,
+            address_formset=address_formset,
             profile_form=profile_form,
         )
 
     def form_invalid(self, **kwargs):
         return self.render_to_response(self.get_context_data(**kwargs))
 
-    def form_valid(self, email_formset, phone_number_formset, profile_form):
+    def form_valid(
+        self, address_formset, email_formset, phone_number_formset, profile_form
+    ):
         self.object = profile_form.save()
         email_formset.save()
         phone_number_formset.save()
+        address_formset.save()
 
         return HttpResponseRedirect(self.get_success_url())
