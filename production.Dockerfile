@@ -75,6 +75,12 @@ COPY ./dj.commands.production.sh .
 RUN sed -i 's/\r$//g' $APP_HOME/dj.commands.production.sh
 RUN chmod +x $APP_HOME/dj.commands.production.sh
 
+# copy celery commands
+COPY ./celery.runner.production.sh .
+RUN sed -i 's/\r$//g' $APP_HOME/celery.runner.production.sh
+RUN chmod +x $APP_HOME/celery.runner.production.sh
+
+
 # copy env file
 COPY ./config/.envs/django/.env.prod.django ./config/.envs/.env.default
 
