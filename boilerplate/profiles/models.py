@@ -1,5 +1,5 @@
 from django.db import models
-from boilerplate.common import ModelMixin
+from boilerplate.common.mixins import ModelMixin
 from django.utils.translation import gettext_lazy as _
 from .utils.upload_path import profile_upload
 

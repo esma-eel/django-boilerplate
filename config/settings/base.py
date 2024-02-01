@@ -16,23 +16,30 @@ import os
 import environ
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse_lazy
 from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
+BASE_FILE_PATH = Path(__file__)
+# index starts from 0
+BASE_DIR = BASE_FILE_PATH.parents[2]
 
 # Take environment variables from .env file
 env = environ.Env(SECRET_KEY=(str, "default"))
-environ.Env.read_env(os.path.join(BASE_DIR / "config" / ".envs", ".env"))
+CONFIG_MODULE_PATH = os.path.join(BASE_DIR, "config")
+ENV_DIR = os.path.join(CONFIG_MODULE_PATH, ".envs")
+DEFAULT_ENV_PATH = os.path.join(ENV_DIR, ".env.default")
+env.read_env(DEFAULT_ENV_PATH)
 
 
-def get_env_variable(var_name):
+def get_env_variable(var_name, file=None):
     """
     Get environment variable or return exception
     """
     try:
+        if file:
+            env.read_env(file)
         # return os.environ[var_name]
         return env(var_name)
     except KeyError:
@@ -40,9 +47,9 @@ def get_env_variable(var_name):
         raise ImproperlyConfigured(error_msg)
 
 
-def get_env_variable_with_default(var_name, default):
+def get_env_variable_with_default(var_name, default, file=None):
     try:
-        result = get_env_variable(var_name)
+        result = get_env_variable(var_name, file)
         return result
     except (ImproperlyConfigured, KeyError):
         return default
@@ -52,9 +59,10 @@ def get_env_variable_with_default(var_name, default):
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = bool(get_env_variable("DEBUG"))
+SECRET_KEY = get_env_variable("SECRET_KEY")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_env_variable("ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -177,6 +185,7 @@ USE_TZ = True
 
 MEDIA_ROOT = BASE_DIR / "_media"
 STATIC_ROOT = BASE_DIR / "_static_root"
+# general static file dirs --> developer puts statics here
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
@@ -267,6 +276,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:1337",
 ]
 CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOW_METHODS = (
@@ -286,9 +296,7 @@ CORS_ALLOW_HEADERS = (
     "x-requested-with",
 )
 """
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://\w+\.example\.com$",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://\w+\.example\.com$"] #noqa
 """
 
 # SIMPLE JWT
@@ -299,7 +307,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": get_env_variable("SECRET_KEY"),
+    "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
@@ -344,4 +352,39 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": (
         "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer"
     ),
+}
+
+# SECURITY WARNING: keep the secret key used in production secret!
+
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+DATABASES = {"default": env.db_url("DATABASE_URL")}
+
+# Celery and Redis
+# U hsould set variables below like the ones you set in environment variables
+
+REDIS_HOST = get_env_variable("REDIS_HOST")
+REDIS_PORT = get_env_variable("REDIS_PORT")
+REDIS_DB = get_env_variable("REDIS_DB")
+
+CELERY_BROKER_URL = get_env_variable("REDIS_URL")
+
+# save Celery task results in Django's database
+CELERY_RESULT_BACKEND = "django-db"
+
+# this allows you to schedule items in the Django admin.
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+
+# Authentication
+LOGIN_URL = "authentication:login"
+LOGOUT_URL = "authentication:logout"
+# LOGIN_REDIRECT_URL = "profiles:profile"
+LOGOUT_REDIRECT_URL = "authentication:login"
+# in order to define absoulte url for models
+# you have enter appname.model then like template below
+ABSOLUTE_URL_OVERRIDES = {
+    "users.user": lambda user: reverse_lazy(
+        "profiles:profile", args=[user.username]
+    )
 }

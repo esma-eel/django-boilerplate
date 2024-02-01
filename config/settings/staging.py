@@ -5,4 +5,6 @@ This is where managers and clients should
 be looking before your work is moved to
 production.
 """
-from .base import *
+from .base import *  # noqa
+
+print("staging")

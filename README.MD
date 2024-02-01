@@ -133,3 +133,16 @@ python manage.py test -v 2 boilerplate
 - remember to use .env files for docker later
 - later you should put execution files of celery run in docker-compose (just a reminder)
 
+# Update:
+- project is dockerized now
+- you can run project with local.yml and production.yml based on desiered env
+- on a new system you have to copy envs_template to .envs and change files
+    in order to work
+
+- mailpit is for local dev
+- staging.yml and test.yml has no data are just placeholders
+- sms does not work unless you change project to use other services
+  or add your api key of kavenegar in api keys part
+
+# todo:
+- add letsencrypt or use ssl files you bought based on project
