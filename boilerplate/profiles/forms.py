@@ -1,5 +1,5 @@
 from django import forms
-from .models import ProfilePhoneNumber, Profile, ProfileEmail
+from .models import ProfilePhoneNumber, Profile, ProfileEmail, ProfileAddress
 
 
 class ProfilePhoneNumberModelForm(forms.ModelForm):
@@ -12,6 +12,12 @@ class ProfileEmailModelForm(forms.ModelForm):
     class Meta:
         model = ProfileEmail
         fields = ["profile", "email", "is_primary"]
+
+
+class ProfileAddressModelForm(forms.ModelForm):
+    class Meta:
+        model = ProfileAddress
+        fields = ["profile", "city", "address", "is_primary"]
 
 
 class ProfileModelForm(forms.ModelForm):
@@ -37,6 +43,18 @@ ProfileEmailInlineFormSet = forms.inlineformset_factory(
     model=ProfileEmail,
     form=ProfileEmailModelForm,
     fields=ProfileEmailModelForm.Meta.fields,
+    exclude=["profile"],
+    extra=1,
+    max_num=3,
+    can_delete=True,
+    can_delete_extra=False,
+)
+
+ProfileAddressInlineFormSet = forms.inlineformset_factory(
+    parent_model=Profile,
+    model=ProfileAddress,
+    form=ProfileAddressModelForm,
+    fields=ProfileAddressModelForm.Meta.fields,
     exclude=["profile"],
     extra=1,
     max_num=3,
