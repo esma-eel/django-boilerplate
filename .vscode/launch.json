@@ -15,7 +15,7 @@
             ],
             "console": "internalConsole",
             "django": true,
-            "justMyCode": true,
+            "justMyCode": false,
         },
         // {
         //     "name": "Python: Shell Plus",

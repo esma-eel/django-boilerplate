@@ -44,15 +44,15 @@ static_url = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns = [
     # mtv
     path("admin/", admin.site.urls),
-    path("common/", include("boilerplate.common.urls")),
-    path("auth/", include("boilerplate.authentication.urls")),
-    path("profiles/", include("boilerplate.profiles.urls")),
-    path("users/", include("boilerplate.users.urls")),
+    path("common/", include("common.urls")),
+    path("auth/", include("authentication.urls")),
+    path("profiles/", include("profiles.urls")),
+    path("users/", include("users.urls")),
     # api
-    path("api/common/", include("boilerplate.common.api.urls")),
-    path("api/auth/", include("boilerplate.authentication.api.urls")),
-    path("api/profiles/", include("boilerplate.profiles.api.urls")),
-    path("api/users/", include("boilerplate.users.api.urls")),
+    path("api/common/", include("common.api.urls")),
+    path("api/auth/", include("authentication.api.urls")),
+    path("api/profiles/", include("profiles.api.urls")),
+    path("api/users/", include("users.api.urls")),
     # swagger
     path(
         "swagger<format>/",

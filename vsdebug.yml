@@ -10,16 +10,6 @@ services:
     networks:
       - vsdebug_network
 
-  celery_worker:
-    build:
-      context: .
-      dockerfile: ./vsdebug.Dockerfile
-    command: ./celery.runner.production.sh
-    env_file:
-      - ./config/.envs/.env.default
-    networks:
-      - vsdebug_network
-  
   postgres_db:
     image: postgres:15
     volumes:

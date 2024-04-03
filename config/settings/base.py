@@ -80,12 +80,12 @@ INSTALLED_APPS = [
     "django_celery_results",
     "drf_yasg",
     # boilerplate
-    "boilerplate.users",
-    "boilerplate.profiles",
-    "boilerplate.authentication",
-    "boilerplate.communications",
-    "boilerplate.adminstration",
-    "boilerplate.dashboard",
+    "users",
+    "profiles",
+    "authentication",
+    "communications",
+    "adminstration",
+    "dashboard",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
