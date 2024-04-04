@@ -31,7 +31,7 @@ but if you did not want to use env variables use below command
 python manage.py cmdname --settings=config.settings.local
 
 
-## Create app
+## Create app #deprecated
 mkdir ./boilerplate/appname
 django-admin startapp appname ./boilerplate/appname
 
@@ -143,6 +143,10 @@ python manage.py test -v 2 boilerplate
 - staging.yml and test.yml has no data are just placeholders
 - sms does not work unless you change project to use other services
   or add your api key of kavenegar in api keys part
+
+#### celery
+in production if needed change djagno settings in celery.py to productionn
+check comment in celery.py
 
 # todo:
 - add letsencrypt or use ssl files you bought based on project

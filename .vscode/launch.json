@@ -5,14 +5,57 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Django start",
-            "type": "python",
+            "name": "Python: Django",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
-            "args": ["runserver", "8000", "--settings=config.settings.local"],
+            "args": [
+                "runserver",
+                "1337"
+            ],
             "console": "internalConsole",
             "django": true,
-            "justMyCode": true,
+            "justMyCode": false,
         },
+        // {
+        //     "name": "Python: Shell Plus",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/web/manage.py",
+        //     "args": ["shell_plus", "--ipython"],
+        //     "console": "internalConsole",
+        // },
+        // {
+        //     "name": "Python: Celery Worker",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "module": "celery",
+        //     "cwd": "${workspaceFolder}/web/",
+        //     "console": "internalConsole",
+        //     "args": [
+        //         "-A",
+        //         "core",
+        //         "worker",
+        //         "-l",
+        //         "info",
+        //     ]
+        // },
+        // {
+        //     "name": "Python: Celery Beat",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "module": "celery",
+        //     "cwd": "${workspaceFolder}/web/",
+        //     "console": "internalConsole",
+        //     "args": [
+        //         "-A",
+        //         "core",
+        //         "beat",
+        //         "-l",
+        //         "info",
+        //         "-s",
+        //         "../data/celery/celerybeat-schedule",
+        //     ]
+        // }
     ]
 }
