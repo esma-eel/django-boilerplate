@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     "communications",
     "adminstration",
     "dashboard",
+    "index",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
