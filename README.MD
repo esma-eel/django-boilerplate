@@ -150,3 +150,6 @@ check comment in celery.py
 
 # todo:
 - add letsencrypt or use ssl files you bought based on project
+
+#### tailwind
+npx tailwindcss -i ./static/boilerplate/_styles/_css/_base.css -o ./static/boilerplate/_styles/_css_tailwind/_base.css
