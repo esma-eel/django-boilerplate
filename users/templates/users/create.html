@@ -1,10 +1,59 @@
 {% extends "dashboard/dashboard.html" %}
 {% block title %} Create User{% endblock title %}
-
+{% block dashboard_title %}
+	Create User
+{% endblock %}
 {% block content %}
-<form action="." method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
+<div class="">
+    <form action="." method="post" class="">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="">
+            <div role="alert" class="rounded border-s-4 border-red-500 bg-red-50 p-4">
+                <div class="flex items-center gap-2 text-red-800">
+                    <strong class="block font-medium"> Form Errors </strong>
+                </div>
+                {% if form.non_field_errors %}
+                    <p class="mt-2 text-sm text-red-700">
+                        {{ form.non_field_errors }}
+                    </p>
+                {% else %}
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p class="mt-2 text-sm text-red-700">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% for field in form %}
+        <div class="">
+            <label for="{{field.auto_id}}" class="sr-only">{{field.label}}</label>
+            <div class="relative">
+                <input
+                    type="{{field.field.widget.input_type}}"
+                    name="{{ field.name }}"
+                    class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                    id="{{ field.auto_id }}"
+                    placeholder="{{field.label}}"
+                    required
+                />
+                <ul>
+                    {{ field.help_text|safe }}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button
+            type="submit"
+            class="block rounded-lg bg-teal-600 mt-12 px-5 py-3 text-sm font-medium text-white"
+        >
+            Create
+        </button>
+    </form>
+</div>
 {% endblock content %}
