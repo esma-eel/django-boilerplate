@@ -1,15 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends "public/base.html" %}
+{% block title %}EK's Django Boilerplate{% endblock title %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EK's Django Boilerplate</title>
-    <link rel="stylesheet" href="{% static 'boilerplate/_styles/_tailwind/_base.css' %}">
-</head>
-
-<body>
+{% block content %}
     <header class="bg-white">
         <nav class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
@@ -110,7 +102,7 @@
 
                         <p class="mt-1 text-sm text-gray-500">
                             OTP(One time password) and OTL (One time links) are implemented in this project
-                            with redis. there is also a redis helpers file which will help you to store and 
+                            with redis. there is also a redis helpers file which will help you to store and
                             retrieve data from redis.
                         </p>
                     </div>
@@ -121,7 +113,7 @@
 
                         <p class="mt-1 text-sm text-gray-500">
                             This project is fully dockerized and there is docker-compose file for Every
-                            situation. you can use the dockerized compose files in test,producion,local 
+                            situation. you can use the dockerized compose files in test,producion,local
                             and debugging.
                         </p>
                     </div>
@@ -150,6 +142,5 @@
             </div>
         </div>
     </section>
-</body>
 
-</html>
+{% endblock %}
