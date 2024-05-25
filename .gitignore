@@ -282,3 +282,4 @@ data
 mailpit-db
 mailpit.db
 node_modules
+.idea
