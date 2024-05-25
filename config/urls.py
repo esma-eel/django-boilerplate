@@ -50,6 +50,7 @@ urlpatterns = [
     path("auth/", include("authentication.urls")),
     path("profiles/", include("profiles.urls")),
     path("users/", include("users.urls")),
+    path("dashboard/", include("dashboard.urls")),
     # api
     path("api/common/", include("common.api.urls")),
     path("api/auth/", include("authentication.api.urls")),
