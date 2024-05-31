@@ -3,20 +3,20 @@ from common.utils.otl_helpers import (
     generate_otl_for_receiver,
     send_otl_to_receiver_email,
 )
-from profiles.api.mixins import ProfileEmailApiMixin
 
 
-class RequestOTLApiMixin(ProfileEmailApiMixin):
-    def generate_otl(self):
-        receiver = self.get_profile_field_from_serializer()
+class RequestOTLApiMixin:
+    receiver_serializer = None
+    receiver_field = ""
+
+    def generate_otl(self, receiver):
         return generate_otl_for_receiver(receiver)
 
     def get_communication_function(self):
         return send_otl_to_receiver_email
 
-    def send_otl(self):
-        otl_value = self.generate_otl()
-        receiver = self.get_profile_field_from_serializer()
+    def send_otl(self, receiver):
+        otl_value = self.generate_otl(receiver)
         communication_function = self.get_communication_function()
 
         if otl_value:

@@ -71,7 +71,7 @@ class PasswordAPITestCase(UserAPITestCase):
 
     def test_reset_password_change_otp_200_ok(self):
         url = reverse("api-authentication:reset-password-phone-otp")
-        receiver = self.user.profile.get_primary_phone_number()
+        receiver = self.user.profile.phone_number
         otp = generate_otp_for_receiver(receiver)
         data = {
             "receiver": receiver,
@@ -84,7 +84,7 @@ class PasswordAPITestCase(UserAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_reset_password_reset_email_otl_20_ok(self):
-        email = self.user.profile.get_primary_email()
+        email = self.user.profile.email
         otl = generate_otl_for_receiver(email)
         data = {
             "email": email,
@@ -98,7 +98,7 @@ class PasswordAPITestCase(UserAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_reset_password_reset_email_otl_400_fail(self):
-        email = self.user.profile.get_primary_email()
+        email = self.user.profile.email
         otl = generate_otl_for_receiver(email)
         data = {
             "email": email,

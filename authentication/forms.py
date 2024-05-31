@@ -5,8 +5,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
 from common.utils.generators import default_token_generator
-from profiles.models import ProfileEmail, ProfilePhoneNumber
 from django.utils.translation import gettext_lazy as _
+from profiles.models import Profile
 
 User = get_user_model()
 
@@ -14,12 +14,10 @@ User = get_user_model()
 class PasswordResetFormEmailChecker(PasswordResetForm):
     def clean_email(self):
         to_email = self.cleaned_data.get("email")
-        query_set = ProfileEmail.objects.filter(
-            email=to_email, is_verified=True, is_primary=True
-        )
+        query_set = Profile.objects.filter(email=to_email)
 
         if not query_set.exists():
-            raise forms.ValidationError("Verified Primary Email not found!")
+            raise forms.ValidationError("Not Found!")
 
         return to_email
 
@@ -43,13 +41,10 @@ class PasswordResetFormEmailChecker(PasswordResetForm):
         else:
             site_name = domain = domain_override
 
-        qs = ProfileEmail.objects.filter(
-            email=email, is_verified=True, is_primary=True
-        )
+        qs = Profile.objects.filter(email=email)
 
         if qs.exists():
-            profile_email_object = qs.last()
-            profile_object = profile_email_object.profile
+            profile_object = qs.last()
             user = profile_object.user
             context = {
                 "email": email,
@@ -98,19 +93,19 @@ class LoginForm(AuthenticationForm):
         user = None
 
         if username is not None and password:
-            phone_qs = ProfilePhoneNumber.objects.filter(
-                phone_number=username, is_primary=True, is_active=True
+            phone_qs = Profile.objects.filter(
+                phone_number=username, is_active=True
             )
-            email_qs = ProfileEmail.objects.filter(
-                email=username, is_primary=True, is_active=True
+            email_qs = Profile.objects.filter(
+                email=username, is_active=True
             )
 
             user_qs = User.objects.filter(username=username)
 
             if phone_qs.exists():
-                user = phone_qs.last().profile.user
+                user = phone_qs.last().user
             elif email_qs.exists():
-                user = email_qs.last().profile.user
+                user = email_qs.last().user
             elif user_qs.exists():
                 user = user_qs.last()
 
