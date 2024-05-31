@@ -20,47 +20,16 @@ class UserModelSerializer(serializers.ModelSerializer):
         fields = ["username", "is_staff", "profile"]
 
 
+class RegisterUserModelSerializer(UserModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "profile"]
+
+
 class CreateUserModelSerializer(serializers.Serializer):
     user = UserModelSerializer()
     authentication = PasswordCheckSerializer()
 
 
-class RegisterUserSerilaizer(PhoneNumberSerializer, EmailSerializer):
-    username = serializers.CharField(max_length=32)
-    name = serializers.CharField()
-    authentication = PasswordCheckSerializer()
-
-
-"""
-{
-    "user": {
-        "username": "esmaeel",
-    },
-    "authentication": {
-        "password": "12345",
-        "repeat_password": "..."
-    },
-    "profile": {
-        "name": "Esmaeel Komijani",
-        "phone_numbers": [
-            {
-                "phone_number": "12345",
-                "is_primary": True
-            }
-        ],
-        "emails": [
-            {
-                "email": "verygood@gm.com",
-                "is_primary": True
-            }
-        ],
-        "address": [
-            {
-                "address": "",
-                "city": "",
-                "is_primary": ""
-            }
-        ]
-    }
-}
-"""
+class RegisterUserSerilaizer(CreateUserModelSerializer):
+    user = RegisterUserModelSerializer()
