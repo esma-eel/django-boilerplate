@@ -5,7 +5,6 @@ from rest_framework.views import APIView
 
 from common.api.otl.serializers import EmailAndOTLSerializer
 from common.api.otl.mixins import RequestOTLApiMixin
-from common.api.otp.serializers import PhoneOTPSerializer
 from profiles.api.serializers import EmailReceiverSerializer, PhoneNumberReceiverSerializer
 from .mixins import ChangePasswordApiMixin, ChangePasswordAPIMixinWithProfileField
 
@@ -55,5 +54,5 @@ class ResetPasswordOTLWithEmailView(
 ):
     allowed_methods = ["post"]
     http_method_names = ["post"]
-    receiver_serializer = EmailReceiverSerializer
+    receiver_serializer = EmailAndOTLSerializer
     receiver_field = "email"

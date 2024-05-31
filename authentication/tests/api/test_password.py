@@ -74,7 +74,7 @@ class PasswordAPITestCase(UserAPITestCase):
         receiver = self.user.profile.phone_number
         otp = generate_otp_for_receiver(receiver)
         data = {
-            "receiver": receiver,
+            "phone_number": receiver,
             "otp": otp,
             "password": self.user_data.get("strong_password"),
             "repeat_password": self.user_data.get("strong_password"),
