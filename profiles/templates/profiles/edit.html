@@ -8,20 +8,20 @@
 
 {% block content %}
 
-<form action="." method="post" class="">
+<form action="." method="post" class="" enctype="multipart/form-data">
     {% csrf_token %}
-    {% if profile_form.errors or phone_number_formset.errors or address_formset.errors %}
+    {% if form.errors %}
     <div class="">
         <div role="alert" class="rounded border-s-4 border-red-500 bg-red-50 p-4">
             <div class="flex items-center gap-2 text-red-800">
                 <strong class="block font-medium"> Form Errors </strong>
             </div>
-            {% if profile_form.non_field_errors %}
+            {% if form.non_field_errors %}
                 <p class="mt-2 text-sm text-red-700">
                     {{ form.non_field_errors }}
                 </p>
             {% else %}
-                {% for field, errors in profile_form.errors.items %}
+                {% for field, errors in form.errors.items %}
                     {% for error in errors %}
                         <p class="mt-2 text-sm text-red-700">
                             {{ error }}
@@ -29,64 +29,15 @@
                     {% endfor %}
                 {% endfor %}
             {% endif %}
-
-            {% for form in phone_number_formset %}
-                {% if form.non_field_errors %}
-                    <p class="mt-2 text-sm text-red-700">
-                        {{ form.non_field_errors }}
-                    </p>
-                {% else %}
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                            <p class="mt-2 text-sm text-red-700">
-                                {{ error }}
-                            </p>
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-
-            {% for form in address_formset %}
-                {% if form.non_field_errors %}
-                    <p class="mt-2 text-sm text-red-700">
-                        {{ form.non_field_errors }}
-                    </p>
-                {% else %}
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                            <p class="mt-2 text-sm text-red-700">
-                                {{ error }}
-                            </p>
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-
-            {% for form in email_formset %}
-                {% if form.non_field_errors %}
-                    <p class="mt-2 text-sm text-red-700">
-                        {{ form.non_field_errors }}
-                    </p>
-                {% else %}
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                            <p class="mt-2 text-sm text-red-700">
-                                {{ error }}
-                            </p>
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-
         </div>
     </div>
     {% endif %}
 
     <h2 class="text-2xl">Profile</h2>
-    {% for hidden in profile_form.hidden_fields %}
+    {% for hidden in form.hidden_fields %}
         {{ hidden }}
     {% endfor %}
-    {% for field in profile_form.visible_fields %}
+    {% for field in form.visible_fields %}
     <div class="">
         <label for="{{field.auto_id}}" class="">{{field.label}}</label>
         <div class="relative">
@@ -113,117 +64,6 @@
             {% endif %}
         </div>
     </div>
-    {% endfor %}
-
-
-    <h2 class="text-2xl my-4">Emails</h2>
-    {{ email_formset.management_form }}
-    {% for email_form in email_formset %}
-    {% for hidden in email_form.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
-    {% for field in email_form.visible_fields %}
-    <div class="">
-        <label for="{{field.auto_id}}" class="">{{field.label}}</label>
-        <div class="relative">
-            {% if field.widget_type == "checkbox" %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-indigo-500"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}checked{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% else %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}value="{{field.value}}"{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
-    {% endfor %}
-
-
-    <h2 class="text-2xl my-4">Phone Numbers</h2>
-    {{ phone_number_formset.management_form }}
-    {% for phone_number_form in phone_number_formset %}
-    {% for hidden in phone_number_form.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
-    {% for field in phone_number_form.visible_fields %}
-    <div class="">
-        <label for="{{field.auto_id}}" class="">{{field.label}}</label>
-        <div class="relative">
-            {% if field.widget_type == "checkbox" %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-indigo-500"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}checked{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% else %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}value="{{field.value}}"{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
-    {% endfor %}
-
-
-    <h2 class="text-2xl my-4">Address</h2>
-    {{ address_formset.management_form }}
-    {% for address_form in address_formset %}
-    {% for hidden in address_form.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
-    {% for field in address_form.visible_fields %}
-    <div class="">
-        <label for="{{field.auto_id}}" class="">{{field.label}}</label>
-        <div class="relative">
-            {% if field.widget_type == "checkbox" %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-indigo-500"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}checked{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% else %}
-            <input
-                type="{{field.field.widget.input_type}}"
-                name="{{ field.name }}"
-                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
-                id="{{ field.auto_id }}"
-                placeholder="{{field.label}}"
-                {% if field.value %}value="{{field.value}}"{% endif %}
-                {% if field.field.required %}required{% endif %}
-            />
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
     {% endfor %}
     <button
         type="submit"
