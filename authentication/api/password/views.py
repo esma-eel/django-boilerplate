@@ -7,7 +7,7 @@ from common.api.otl.serializers import EmailAndOTLSerializer
 from common.api.otl.mixins import RequestOTLApiMixin
 from common.api.otp.serializers import PhoneOTPSerializer
 from profiles.api.serializers import EmailReceiverSerializer, PhoneNumberReceiverSerializer
-from .mixins import ChangePasswordApiMixin
+from .mixins import ChangePasswordApiMixin, ChangePasswordAPIMixinWithProfileField
 
 
 class AuthenticatedUserChangePasswordApiView(ChangePasswordApiMixin, APIView):
@@ -17,7 +17,7 @@ class AuthenticatedUserChangePasswordApiView(ChangePasswordApiMixin, APIView):
 
 
 class ResetPasswordOTPWithPhoneNumberView(
-    ChangePasswordApiMixin, APIView
+    ChangePasswordAPIMixinWithProfileField, APIView
 ):
     allowed_methods = ["post"]
     http_method_names = ["post"]
@@ -51,7 +51,7 @@ class ResetPasswordRequestOTLWithEmailView(RequestOTLApiMixin, APIView):
 
 
 class ResetPasswordOTLWithEmailView(
-    ChangePasswordApiMixin, APIView
+    ChangePasswordAPIMixinWithProfileField, APIView
 ):
     allowed_methods = ["post"]
     http_method_names = ["post"]
