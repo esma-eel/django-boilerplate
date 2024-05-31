@@ -1,5 +1,17 @@
 {% extends "authentication/base.html" %}
 {% block title %} Logged Out{% endblock title %}
 {% block content %}
-<h1>Logged Out</h1>
+<div class="flex flex-col justify-center items-center h-screen">
+    <div class="">
+        <h1 class="text-center text-2xl font-bold text-teal-600 sm:text-3xl">Logged out</h1>
+        <div class="text-center mt-4">
+            <a
+                href="{% url "index:index" %}"
+                class="rounded-lg bg-teal-600 px-5 py-3 text-sm font-medium text-white"
+            >
+                OK! lets go home.            
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

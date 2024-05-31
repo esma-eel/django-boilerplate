@@ -1,5 +1,29 @@
-{% extends 'dashboard/base.html' %}
-{% block title %} Dashboard {% endblock title %}
-{% block content %}
-<h1>Welcome to Dashboard</h1>
-{% endblock content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'boilerplate/_styles/_tailwind/_base.css' %}">
+</head>
+<body>
+<div class="grid grid-rows-1 grid-cols-12 gap-1">
+    <div class="col-span-2">
+        {% include "dashboard/components/sidenav.html" %}
+    </div>
+
+    <div class="col-span-10 p-20 min-h-screen">
+        <div class="text-4xl">
+            {% block dashboard_title %}
+                <h1>page title with dashboard_title</h1>
+            {% endblock %}
+        </div>
+        <div class="mt-20 content">
+            {% block content %}Welcome to Dashboard{% endblock content %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+{% extends "public/base.html" %}
+{% block title %}EK's Django Boilerplate{% endblock title %}
+
+{% block content %}
+    <header class="bg-white">
+        {% include "components/navbar.html" %}
+        <section class="bg-gray-50">
+            <div class="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:items-center">
+                <div class="mx-auto max-w-xl text-center">
+                    <h1 class="text-3xl font-extrabold sm:text-5xl">
+                        New Project ?
+                        <strong class="font-extrabold text-teal-600 sm:block"> Django Boilerplate made it easy.
+                        </strong>
+                    </h1>
+
+                    <p class="mt-4 sm:text-xl/relaxed">
+                        With this project, you can implement your ideas fater,
+                        couse many configs and starter apps already implemented
+                    </p>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <section class="bg-gray-50 text-black" id="features">
+        <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+            <div class="max-w-full text-center">
+                <h2 class="text-4xl font-bold sm:text-4xl">Features</h2>
+
+                <p class="mt-4 text-black">
+                    Some features of EK's django boilerplate.
+                </p>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 gap-8 md:mt-16 md:grid-cols-2 md:gap-12 lg:grid-cols-3">
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Authentication</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            This project, has API for authentication based on DRF Token and JWT.
+                            there is authentication views for MTV approach too.
+                            checkout authentication app in order to see and change these features.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Tested</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Every API in this project: Authentication, User, Profile, OTP, OTL etc.
+                            are tested and you can find them in each apps directory under tests.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">OTP/OTL</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            OTP(One time password) and OTL (One time links) are implemented in this project
+                            with redis. there is also a redis helpers file which will help you to store and
+                            retrieve data from redis.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Dockerized</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            This project is fully dockerized and there is docker-compose file for Every
+                            situation. you can use the dockerized compose files in test,producion,local
+                            and debugging.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Mailpit</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Do you want to see the emails you send in your project in a place more like a real
+                            mailing service ? you have mailpit in order to see the emails intead of using
+                            console backend which django provides.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold">Tailwindcss</h2>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            pre configured tailwindcss in this project. you are free to create
+                            and style your pages in a way you want not the way you are told.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
