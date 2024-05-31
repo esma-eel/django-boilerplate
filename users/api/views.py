@@ -10,6 +10,7 @@ from profiles.api.serializers import ProfileModelSerializer
 from .serializers import (
     CreateUserModelSerializer,
     UserModelSerializer,
+    RegisterUserModelSerializer,
     RegisterUserSerilaizer,
 )
 
@@ -18,6 +19,7 @@ User = get_user_model()
 
 class UserCreateAPIView(APIView):
     serializer_class = CreateUserModelSerializer
+    response_serializer_class = UserModelSerializer
     permission_classes = [IsAuthenticated]
     allowed_methods = ["post"]
     http_method_names = ["post"]
@@ -63,7 +65,7 @@ class UserCreateAPIView(APIView):
         user_object = self.user_create(user_data)
         self.authentication_set(user_object, authentication_data)
 
-        created_serializer = UserModelSerializer(instance=user_object)
+        created_serializer = self.response_serializer_class(instance=user_object)
 
         return Response(
             created_serializer.data,
@@ -73,57 +75,9 @@ class UserCreateAPIView(APIView):
 
 class UserRegisterAPIView(UserCreateAPIView):
     serializer_class = RegisterUserSerilaizer
+    response_serializer_class = RegisterUserModelSerializer
     allowed_methods = ["post"]
     http_method_names = ["post"]
 
     permission_classes = []
     authentication_classes = []
-
-    def generate_user_data(self, serializer_data):
-        user_data = {
-            "username": serializer_data.get("username"),
-            "profile": {
-                "name": serializer_data.get("name"),
-                "phone_numbers": [
-                    {
-                        "phone_number": serializer_data.get("phone_number"),
-                        "is_primary": True,
-                    },
-                ],
-                "emails": [
-                    {
-                        "email": serializer_data.get("email"),
-                        "is_primary": True,
-                    }
-                ],
-            },
-        }
-        return user_data
-
-    @transaction.atomic()
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer_data = copy.deepcopy(serializer.data)
-
-        authentication_data = serializer_data.pop("authentication")
-        user_data = self.generate_user_data(serializer_data)
-
-        validated_data = {
-            "user": copy.deepcopy(user_data),
-            "authentication": copy.deepcopy(authentication_data),
-        }
-        validate_serializer = CreateUserModelSerializer(data=validated_data)
-        validate_serializer.is_valid(raise_exception=True)
-
-        user_object = self.user_create(user_data)
-        self.authentication_set(user_object, authentication_data)
-
-        created_serializer = UserModelSerializer(instance=user_object)
-        headers = self.get_success_headers(request.data)
-
-        return Response(
-            created_serializer.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers,
-        )

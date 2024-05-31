@@ -11,32 +11,38 @@ class CreateUserAPITestCase(UserAPITestCase):
 
         self.create_user_data = {
             "user": {
-                "username": "testuser125",
+                "username": "testuser6",
+                "is_staff": True,
                 "profile": {
-                    "name": "hello",
-                    "phone_numbers": [
-                        {"phone_number": "09120001480", "is_primary": True}
-                    ],
-                    "emails": [
-                        {"email": "veryemailshit@gm.com", "is_primary": True}
-                    ],
-                    "addresses": [],
+                    "name": "testuser6",
+                    # "avatar": "path/9iapSjX-matrix-hd-wallpaper.png",
+                    "phone_number": "09120000006",
+                    "email": "veryemailshit6@gm.com",
+                    "city": "somewhere",
+                    "address": "newar",
                 },
             },
             "authentication": {
-                "password": "1234@Esmaeel",
-                "repeat_password": "1234@Esmaeel",
+                "password": "1234@BlahRE",
+                "repeat_password": "1234@BlahRE",
             },
         }
 
         self.register_user_data = {
-            "username": "testuser130",
-            "name": "hello",
-            "phone_number": "09120001482",
-            "email": "test@fakewkea6aaa.com",
+            "user": {
+                "username": "testuser7",
+                "profile": {
+                    "name": "testuser7",
+                    # "avatar": "path/9iapSjX-matrix-hd-wallpaper.png",
+                    "phone_number": "09120000007",
+                    "email": "veryemailshit7@gm.com",
+                    "city": "somewhere",
+                    "address": "newar",
+                },
+            },
             "authentication": {
-                "password": "1234@Esmaeel",
-                "repeat_password": "1234@Esmaeel",
+                "password": "1234@BlahRE",
+                "repeat_password": "1234@BlahRE",
             },
         }
 
@@ -79,12 +85,8 @@ class CreateUserAPITestCase(UserAPITestCase):
         url = reverse("api-users:user-register")
         data = copy.deepcopy(self.register_user_data)
 
-        data["email"] = self.create_user_data["user"]["profile"]["emails"][0][
-            "email"
-        ]
-        data["phone_number"] = self.create_user_data["user"]["profile"][
-            "phone_numbers"
-        ][0]["phone_number"]
+        data["user"]["profile"]["email"] = self.create_user_data["user"]["profile"]["email"]
+        data["user"]["profile"]["phone_number"] = self.create_user_data["user"]["profile"]["phone_number"]
 
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
