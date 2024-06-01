@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.shortcuts import render
 from django.views.generic import UpdateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from .models import Profile
 from .forms import (
     ProfileModelForm,
@@ -18,10 +19,19 @@ def profile_home(request, username=None):
     )
 
 
-class ProfileView(LoginRequiredMixin, DetailView):
+class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Profile
     template_name = "profiles/profile.html"
     context_object_name = "profile"
+
+    def test_func(self):
+        user = self.request.user
+        instance = self.get_object()
+
+        if user.is_superuser or instance.user == user:
+            return True
+
+        return False
 
     def get_object(self, queryset=None):
         if queryset is None:
@@ -32,10 +42,13 @@ class ProfileView(LoginRequiredMixin, DetailView):
         )
 
 
-class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProfileEditView(
+    LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "profiles/edit.html"
     model = Profile
     form_class = ProfileModelForm
+    success_message = "Profile successfully updated!"
 
     def test_func(self):
         user = self.request.user
@@ -61,7 +74,3 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             kwargs={"username": profile_object.user.username},
         )
         return url
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().post(request, *args, **kwargs)
