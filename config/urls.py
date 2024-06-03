@@ -44,7 +44,7 @@ static_url = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns = [
     # mtv
-    path("", include("index.urls")),
+    path("", include("public.urls")),
     path("admin/", admin.site.urls),
     path("common/", include("common.urls")),
     path("auth/", include("authentication.urls")),
