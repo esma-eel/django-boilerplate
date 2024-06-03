@@ -1,3 +1,4 @@
+from typing import Any
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -40,6 +41,12 @@ class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return get_object_or_404(
             queryset, user__username=self.kwargs.get("username")
         )
+    
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("menu_item", "account")
+        kwargs.setdefault("submenu_item", "view_profile")
+        return super().get_context_data(**kwargs)
+
 
 
 class ProfileEditView(
@@ -74,3 +81,8 @@ class ProfileEditView(
             kwargs={"username": profile_object.user.username},
         )
         return url
+    
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("menu_item", "account")
+        kwargs.setdefault("submenu_item", "edit_profile")
+        return super().get_context_data(**kwargs)
