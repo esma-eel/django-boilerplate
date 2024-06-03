@@ -2,4 +2,12 @@ from django.shortcuts import render
 
 
 def dashboard(request):
-    return render(request, "dashboard/dashboard.html")
+    context = {
+        "menu_item": "dashboard",
+        "submenu_item": "dashboard",
+    }
+    return render(
+        request=request,
+        template_name="dashboard/dashboard.html",
+        context=context,
+    )

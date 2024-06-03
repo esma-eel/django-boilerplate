@@ -8,7 +8,7 @@
       <li>
         <a
           href="{% url "dashboard:dashboard" %}"
-          class="block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700"
+          class="{% if menu_item == 'dashboard' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
         >
           Dashboard
         </a>
@@ -54,7 +54,7 @@
 
       <!-- account items -->
       <li>
-        <details class="group [&_summary::-webkit-details-marker]:hidden">
+        <details class="group [&_summary::-webkit-details-marker]:hidden" {% if menu_item == "account" %}open{% endif %}>
           <summary
             class="flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
           >
@@ -81,7 +81,7 @@
             <li>
               <a
                 href="{% url "profiles:profile" request.user.username %}"
-                class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                class="{% if submenu_item == 'view_profile' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
               >
                 Profile
               </a>
@@ -90,7 +90,7 @@
             <li>
               <a
                 href="{% url "profiles:profile-edit" request.user.username %}"
-                class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                class="{% if submenu_item == 'edit_profile' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
               >
                 Edit Profile
               </a>

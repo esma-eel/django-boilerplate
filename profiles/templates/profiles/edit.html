@@ -51,6 +51,27 @@
                 {% if field.value %}checked{% endif %}
                 {% if field.field.required %}required{% endif %}
             />
+            {% elif field.field.widget.input_type == "file" %}
+            {% if field.value %}
+                <span class="">uploaded:</span> <a class="my-3 text-blue-600 hover:text-blue-900" href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a>
+            {% endif %}
+            <input
+                type="{{field.field.widget.input_type}}"
+                name="{{ field.name }}"
+                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                id="{{ field.auto_id }}"
+                placeholder="{{field.label}}"
+                
+                {% if field.field.required %}required{% endif %}
+            />
+            {% elif field.widget_type == "textarea" %}
+            <textarea
+                name="{{ field.name }}"
+                id="{{ field.auto_id }}"
+                class="w-full rounded-lg border-gray-200 text-sm shadow-sm"
+                rows="5"
+                {% if field.field.required %}required{% endif %}
+            >{% if field.value %}{{field.value}}{% endif %}</textarea>
             {% else %}
             <input
                 type="{{field.field.widget.input_type}}"
