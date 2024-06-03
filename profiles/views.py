@@ -1,14 +1,19 @@
-from typing import Any
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+
+from common.utils.otp_helpers import (
+    generate_otp_for_receiver,
+    send_otp_to_receiver_sms,
+)
 from .models import Profile
 from .forms import (
     ProfileModelForm,
+    ProfileVerifyOTPForReceiver,
 )
 
 
@@ -41,12 +46,11 @@ class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         return get_object_or_404(
             queryset, user__username=self.kwargs.get("username")
         )
-    
+
     def get_context_data(self, **kwargs):
         kwargs.setdefault("menu_item", "account")
         kwargs.setdefault("submenu_item", "view_profile")
         return super().get_context_data(**kwargs)
-
 
 
 class ProfileEditView(
@@ -81,8 +85,54 @@ class ProfileEditView(
             kwargs={"username": profile_object.user.username},
         )
         return url
-    
+
     def get_context_data(self, **kwargs):
         kwargs.setdefault("menu_item", "account")
         kwargs.setdefault("submenu_item", "edit_profile")
         return super().get_context_data(**kwargs)
+
+
+def send_otp_to_profile_phone_number_view(request):
+    user = request.user
+    profile = user.profile
+    if not profile.phone_number_is_verified:
+        phone_number = user.profile.phone_number
+        otp = generate_otp_for_receiver(phone_number)
+        success = send_otp_to_receiver_sms(phone_number, otp)
+        if success:
+            return redirect("profiles:verify-phone-number")
+        else:
+            messages.error(
+                request,
+                "OTP not sent for {phone_number}. try again".format(
+                    phone_number=phone_number
+                ),
+            )
+            return redirect("dashboard:dashboard")
+
+    messages.error(request, "you alread verified your phone number!")
+    return redirect("dashboard:dashboard")
+
+
+def verify_profile_phone_number_view(request):
+    post = "POST"
+    profile = request.user.profile
+    if not profile.phone_number_is_verified:
+        if request.method == post:
+            form = ProfileVerifyOTPForReceiver(
+                request.POST, receiver=profile.phone_number
+            )
+            if form.is_valid():
+                profile.phone_number_is_verified = True
+                profile.save()
+                messages.success(request, "Phone number verified successfully")
+                return redirect("dashboard:dashboard")
+        else:
+            form = ProfileVerifyOTPForReceiver()
+
+        context = {"form": form}
+
+        return render(request, "profiles/verify_otp.html", context=context)
+
+    messages.error(request, "you alread verified your phone number!")
+    return redirect("dashboard:dashboard")
