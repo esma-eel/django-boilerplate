@@ -9,6 +9,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from common.utils.otp_helpers import (
     generate_otp_for_receiver,
     send_otp_to_receiver_sms,
+    send_otp_to_receiver_email,
 )
 from .models import Profile
 from .forms import (
@@ -135,4 +136,50 @@ def verify_profile_phone_number_view(request):
         return render(request, "profiles/verify_otp.html", context=context)
 
     messages.error(request, "you alread verified your phone number!")
+    return redirect("dashboard:dashboard")
+
+
+def send_otp_to_profile_email_view(request):
+    user = request.user
+    profile = user.profile
+    if not profile.email_is_verified:
+        email = user.profile.email
+        otp = generate_otp_for_receiver(email)
+        success = send_otp_to_receiver_email(email, otp)
+        if success:
+            return redirect("profiles:verify-email")
+        else:
+            messages.error(
+                request,
+                "OTP not sent for {email}. try again".format(
+                    email=email
+                ),
+            )
+            return redirect("dashboard:dashboard")
+
+    messages.error(request, "you alread verified your email!")
+    return redirect("dashboard:dashboard")
+
+
+def verify_profile_email_view(request):
+    post = "POST"
+    profile = request.user.profile
+    if not profile.email_is_verified:
+        if request.method == post:
+            form = ProfileVerifyOTPForReceiver(
+                request.POST, receiver=profile.email
+            )
+            if form.is_valid():
+                profile.email_is_verified = True
+                profile.save()
+                messages.success(request, "Email verified successfully")
+                return redirect("dashboard:dashboard")
+        else:
+            form = ProfileVerifyOTPForReceiver()
+
+        context = {"form": form}
+
+        return render(request, "profiles/verify_otp.html", context=context)
+
+    messages.error(request, "you alread verified your email!")
     return redirect("dashboard:dashboard")

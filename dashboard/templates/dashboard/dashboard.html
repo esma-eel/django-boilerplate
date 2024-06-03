@@ -18,7 +18,7 @@
             <div class="bg-red-400 px-4 py-3 text-white">
                 <p class="text-center text-sm font-medium">
                     You did not verify your email
-                    <a href="#" class="inline-block underline">Verify it now</a>
+                    <a href="{% url 'profiles:send-otp-to-verify-email' %}" class="inline-block underline">Verify email now</a>
                 </p>
             </div>
         {% endif %}
@@ -26,7 +26,7 @@
             <div class="bg-indigo-400 px-4 py-3 text-white">
                 <p class="text-center text-sm font-medium">
                     You did not verify your phone number
-                    <a href="{% url 'profiles:send-otp-to-verify-phone-number' %}" class="inline-block underline">Verify it now</a>
+                    <a href="{% url 'profiles:send-otp-to-verify-phone-number' %}" class="inline-block underline">Verify phone now</a>
                 </p>
             </div>
         {% endif %}

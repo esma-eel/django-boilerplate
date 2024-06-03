@@ -15,6 +15,16 @@ urlpatterns = [
         name="verify-phone-number",
     ),
     path(
+        r"send-otp-to-verify-email/",
+        views.send_otp_to_profile_email_view,
+        name="send-otp-to-verify-email",
+    ),
+    path(
+        r"verify-email/",
+        views.verify_profile_email_view,
+        name="verify-email",
+    ),
+    path(
         r"<str:username>/",
         views.ProfileView.as_view(),
         name="profile",
