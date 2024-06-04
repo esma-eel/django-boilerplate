@@ -51,7 +51,53 @@
           </ul>
         </details>
       </li>
+      <!-- users items -->
+      <li>
+        <details class="group [&_summary::-webkit-details-marker]:hidden" {% if menu_item == "users" %}open{% endif %}>
+          <summary
+            class="flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+          >
+            <span class="text-sm font-medium"> Users </span>
 
+            <span class="shrink-0 transition duration-300 group-open:-rotate-180">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </span>
+          </summary>
+
+          <!-- account subitems -->
+          <ul class="mt-2 space-y-1 px-4">
+            <li>
+              <a
+                href="{% url "users:user-create" %}"
+                class="{% if submenu_item == 'view_create_user' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
+              >
+                Create
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="{% url "users:user-list" %}"
+                class="{% if submenu_item == 'view_list_user' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
+              >
+                List
+              </a>
+            </li>
+
+          </ul>
+        </details>
+      </li>
       <!-- account items -->
       <li>
         <details class="group [&_summary::-webkit-details-marker]:hidden" {% if menu_item == "account" %}open{% endif %}>
@@ -81,7 +127,7 @@
             <li>
               <a
                 href="{% url "profiles:profile" request.user.username %}"
-                class="{% if submenu_item == 'view_profile' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
+                class="{% if submenu_item == 'view_profile' and object and object.user == request.user %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
               >
                 Profile
               </a>
@@ -90,7 +136,7 @@
             <li>
               <a
                 href="{% url "profiles:profile-edit" request.user.username %}"
-                class="{% if submenu_item == 'edit_profile' %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
+                class="{% if submenu_item == 'edit_profile' and object and object.user == request.user %}block rounded-lg bg-teal-100 px-4 py-2 text-sm font-medium text-teal-700{% else %}block rounded-lg px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700{% endif %}"
               >
                 Edit Profile
               </a>
