@@ -1,157 +1,144 @@
-# How To ?
+# Django Boilerplate Project README
 
-## Set project folder in virtualenvwrapper
-to cd to project folder when using "workon envname" command
-enter "setvirtualenvproject" in root
+## Overview
 
-to add project to python path and use django-admin insteado f python manage.py
-use add2virtualenv . 
-note: "." is current folder of project
+Django Boilerplate is a starter project template designed to kickstart development of Django applications quickly. It includes essential configurations, dependencies, and helpers to streamline the development process.
 
-## Setup environment variables
-if you use virtualenv else use only export command in global
-or put the export command in .bashrc or .zshrc files
+This project is just for starting an IDEA fast and dont think about authentication or basic django configurations.
+I found Cookiecutter Django too complicated so I created this. 
 
-cd ~/.virtualenvs/$NAMEOFVENV/bin
-vim postactivate
-    export DJANGO_SETTINGS_MODULE=config.settings.local
-    export SECRET_KEY=""
-    export CELERY_BROKER_URL=""
+- Django Version: 4.2.6
+- Python Version: 3.11
+- Coverage: 85%
+- API Tests: Yes
+- MTV Tests: No
+- Tailwindcss version: 3.4.3
+- Used Hyperui components
 
-vim postdeactivate
-    unset DJANGO_SETTINGS_MODULE
-    unset SECRET_KEY
-    unset CELERY_BROKER_URL
+## How to Setup
 
-## Run commands of management.py
-if you set previous step
-you only need to set settings in postactivate and unset it in postdeactivate
-but if you did not want to use env variables use below command
+### Prerequisites
 
-python manage.py cmdname --settings=config.settings.local
+- Ensure you have Python installed on your machine. The project supports Python 3.11
+- Install Docker if you plan to use the Docker environment.
 
 
-## Create app #deprecated
-mkdir ./boilerplate/appname
-django-admin startapp appname ./boilerplate/appname
+### Installation Steps
 
-add codes below to apps.py
+1. Clone the repository:
 
-    name = "boilerplate.appname"
-    verbose_name = _("Appname")
+   ```bash
+   git clone https://github.com/esma-eel/django-boilerplate.git
+   cd django-boilerplate
+   ```
 
-    def ready(self):
-        pass
+2. Create a virtual environment (optional but recommended):
 
-## flusth expired tokens
-python manage.py flushexpiredtokens
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+
+3. Install dependencies:
+    For each environment, use the file corresponding to the same environment
+
+   ```bash
+   pip install -r requirements/local.txt
+   ```
+
+4. Start docker services for local development
+
+    ```bash
+    docker compose -f vsdebug.yml up -d --build
+    ```
+5. Environment variables
+    - create a copy of envs_template in config and rename it as .envs
+    - change .env.default values in your .envs for local development and vsdebug
+
+6. Run migrations:
+
+   ```bash
+   python manage.py migrate
+   ```
+
+7. Create super user
+    ```bash
+    python manage.py createsuperuser
+    ```
+
+8. Collect static files (if applicable):
+
+   ```bash
+   python manage.py collectstatic --noinput --clear --no-post-process
+   ```
+
+9. Create api key (if appllicable):
+    - Add API key for sms provider with code sms_provider_key
+    - change communications.utils.sms to use another providers sdk (default is Kavenegar from Iran for test)
+
+## Running Locally
+
+To run the project locally, execute the following command:
+
+```bash
+python manage.py runserver 1337
+```
+
+The application will start on `http://127.0.0.1:1337/`.
+
+In order to run the project locally along with vscode debugger use the following code for configuration of vscode debugger
+
+```
+{
+    "name": "Python: Django",
+    "type": "debugpy",
+    "request": "launch",
+    "program": "${workspaceFolder}/manage.py",
+    "args": [
+        "runserver",
+        "1337"
+    ],
+    "console": "internalConsole",
+    "django": true,
+    "justMyCode": false,
+},
+```
+
+## Running in Production
+
+For deploying the project in a production production.yml file in your server to start services:
+
+```bash
+docker compose -f production.yml up -d --build
+```
 
 
-## run redis server
-docker compose -f dc-redis.yml up -d --build
+## MTV and Tailwindcss
 
-## connect to a container
-to go with root in a container
-docker exec -it -u 0 redis_server sh 
+### Install dependencies
 
-to go with noraml user in a container
-docker exec -it -u 1 redis_server sh
+Install dependencies with following command :
 
-## celery 
-./doker/celery/celery.Runner.sh
-i did some works on celery but finally i had to run the sh above
-to use it in localhost
+```bash
+npm install package.json
+```
 
-## adminstration
-create models in models/ module
-with name of that category then import it
-in the __init__.py of models/ module
+### Running watcher
 
-### sms templates
-create sms template of otp from admin first
-create otp1 template
-in sms service provider
-with token variable
+With following command tailwind will watch your HTML files and creates the css you can check package.json to see this command:
 
-example
-name:
-    otp1
-template text:
-    Test
-    Code: %token
-### api key
-create api key of sms provider in admin first
-code for sms provider is 
-"sms_provider_key"
-
-## Email SMTP testing
-to see sent emails for testing you have to run mailpit server with docker
-docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
-
-settings to work are
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = '127.0.0.1'
-EMAIL_PORT = 1025
-then use send mail function
-from django.core.mail import send_mail
-
-### email templates
-create email template of otp from admin first
-create otp1 template
-add token
-example
-name:
-    otp1
-template text:
-    Test
-    Code: {token}
-
-name:
-    otl1
-template text:
-    Link of password reset:
-    Link: {link}
-
-    Important: Link is active for 6 hours
+```bash
+npm run watch:css
+```
 
 
-## start commands for local
-docker compose -f doker/redis/dc-redis.yml up -d --build
-docker compose -f doker/mailpit/dc-mailpit.yml up -d --build
-./doker/celery/celery.Runner.sh 
+## Contributing
 
-### down services
-./doker/celery/celery.Runner.sh --> ctrl + c
-docker compose -f doker/mailpit/dc-mailpit.yml down
-docker compose -f doker/redis/dc-redis.yml down
+IDK how to do this yet.
 
-## run all tests
-to run tests you can refert to the module or use command below to run all
-python manage.py test -v 2 boilerplate
+## License
 
-# TODO:
-- remember to use .env files for docker later
-- later you should put execution files of celery run in docker-compose (just a reminder)
-
-# Update:
-- project is dockerized now
-- you can run project with local.yml and production.yml based on desiered env
-- on a new system you have to copy envs_template to .envs and change files
-    in order to work
-
-- mailpit is for local dev
-- staging.yml and test.yml has no data are just placeholders
-- sms does not work unless you change project to use other services
-  or add your api key of kavenegar in api keys part
-
-#### celery
-in production if needed change djagno settings in celery.py to productionn
-check comment in celery.py
-
-# todo:
-- add letsencrypt or use ssl files you bought based on project
-
-#### tailwind
-npx tailwindcss -i ./static/boilerplate/_styles/_css/_base.css -o ./static/boilerplate/_styles/_css_tailwind/_base.css
-
-python manage.py collectstatic --noinput --clear --no-post-process
+I did not choose one yet
+but tell me if this project helped you
+it will make me very happy
+and help me fix my mistakes and get better
