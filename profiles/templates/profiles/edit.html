@@ -1,28 +1,97 @@
 {% extends "dashboard/dashboard.html" %}
-{% block title %} Profile Edit {% endblock title %}
+{% block title %} Edit Profile {% if object.user != request.user %} {{ object.user }} {% endif %} {% endblock title %}
+
+{% block dashboard_title %}
+    <h1>Edit Profile {% if object.user != request.user %} {{ object.user }} {% endif %}</h1>
+{% endblock %}
+
 
 {% block content %}
-<h1>Profile Edit</h1>
-<form action="." method="post" enctype="multipart/form-data">
+
+<form action="." method="post" class="" enctype="multipart/form-data">
     {% csrf_token %}
-    {% comment %} profile {% endcomment %}
-    <h4>Profile</h4>
-    {{ profile_form.as_p }}
+    {% if form.errors %}
+    <div class="">
+        <div role="alert" class="rounded border-s-4 border-red-500 bg-red-50 p-4">
+            <div class="flex items-center gap-2 text-red-800">
+                <strong class="block font-medium"> Form Errors </strong>
+            </div>
+            {% if form.non_field_errors %}
+                <p class="mt-2 text-sm text-red-700">
+                    {{ form.non_field_errors }}
+                </p>
+            {% else %}
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p class="mt-2 text-sm text-red-700">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
-    {% comment %} phone_numbers {% endcomment %}
-    <h4>Phone Numbers</h4>
-    {{ phone_number_formset.as_p }}
-
-    {% comment %} emails {% endcomment %}
-    <h4>Emails</h4>
-    {{ email_formset.as_p }}
-
-    {% comment %} addresses {% endcomment %}
-    <h4>Address</h4>
-    {{ address_formset.as_p }}
-
-
-    <button type="submit">Submit</button>
+    <h2 class="text-2xl">Profile</h2>
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+    {% for field in form.visible_fields %}
+    <div class="">
+        <label for="{{field.auto_id}}" class="">{{field.label}}</label>
+        <div class="relative">
+            {% if field.widget_type == "checkbox" %}
+            <input
+                type="{{field.field.widget.input_type}}"
+                name="{{ field.name }}"
+                class="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-indigo-500"
+                id="{{ field.auto_id }}"
+                placeholder="{{field.label}}"
+                {% if field.value %}checked{% endif %}
+                {% if field.field.required %}required{% endif %}
+            />
+            {% elif field.field.widget.input_type == "file" %}
+            {% if field.value %}
+                <span class="">uploaded:</span> <a class="my-3 text-blue-600 hover:text-blue-900" href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a>
+            {% endif %}
+            <input
+                type="{{field.field.widget.input_type}}"
+                name="{{ field.name }}"
+                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                id="{{ field.auto_id }}"
+                placeholder="{{field.label}}"
+                {% if field.field.required %}required{% endif %}
+            />
+            {% elif field.widget_type == "textarea" %}
+            <textarea
+                name="{{ field.name }}"
+                id="{{ field.auto_id }}"
+                class="w-full rounded-lg border-gray-200 text-sm shadow-sm"
+                rows="5"
+                {% if field.field.required %}required{% endif %}
+            >{% if field.value %}{{field.value}}{% endif %}</textarea>
+            {% else %}
+            <input
+                type="{{field.field.widget.input_type}}"
+                name="{{ field.name }}"
+                class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                id="{{ field.auto_id }}"
+                placeholder="{{field.label}}"
+                {% if field.value %}value="{{field.value}}"{% endif %}
+                {% if field.field.required %}required{% endif %}
+                {% if field.field.max_length %}maxlength="{{field.field.max_length}}"{% endif %}
+            />
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    <button
+        type="submit"
+        class="mt-5 block w-full rounded-lg bg-teal-600 px-5 py-3 text-sm font-medium text-white"
+    >
+        Submit
+    </button>
 </form>
 {% endblock content %}
 

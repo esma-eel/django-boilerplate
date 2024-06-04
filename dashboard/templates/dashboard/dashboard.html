@@ -1,5 +1,57 @@
-{% extends 'dashboard/base.html' %}
-{% block title %} Dashboard {% endblock title %}
-{% block content %}
-<h1>Welcome to Dashboard</h1>
-{% endblock content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'boilerplate/_styles/_tailwind/_base.css' %}">
+</head>
+<body>
+<div class="grid grid-rows-1 grid-cols-12 gap-1">
+    <div class="col-span-2">
+        {% include "dashboard/components/sidenav.html" %}
+    </div>
+
+    <div class="col-span-10 min-h-screen">
+        {% if not request.user.profile.email_is_verified %}
+            <div class="bg-red-400 px-4 py-3 text-white">
+                <p class="text-center text-sm font-medium">
+                    You did not verify your email
+                    <a href="{% url 'profiles:send-otp-to-verify-email' %}" class="inline-block underline">Verify email now</a>
+                </p>
+            </div>
+        {% endif %}
+        {% if not request.user.profile.phone_number_is_verified %}
+            <div class="bg-indigo-400 px-4 py-3 text-white">
+                <p class="text-center text-sm font-medium">
+                    You did not verify your phone number
+                    <a href="{% url 'profiles:send-otp-to-verify-phone-number' %}" class="inline-block underline">Verify phone now</a>
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="p-20">
+            <div class="text-4xl">
+                <div class="text-2xl container mx-auto py-5">
+                    {% for message in messages %}
+                        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 rounded"
+                            role="alert">
+                            <p>{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% block dashboard_title %}
+                    <h1>page title with dashboard_title</h1>
+                {% endblock %}
+            </div>
+            <div class="mt-20 content">
+                {% block content %}Welcome to Dashboard{% endblock content %}
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

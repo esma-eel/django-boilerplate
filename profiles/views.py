@@ -1,15 +1,20 @@
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+
+from common.utils.otp_helpers import (
+    generate_otp_for_receiver,
+    send_otp_to_receiver_sms,
+    send_otp_to_receiver_email,
+)
 from .models import Profile
 from .forms import (
     ProfileModelForm,
-    ProfilePhoneNumberInlineFormSet,
-    ProfileEmailInlineFormSet,
-    ProfileAddressInlineFormSet,
+    ProfileVerifyOTPForReceiver,
 )
 
 
@@ -21,10 +26,19 @@ def profile_home(request, username=None):
     )
 
 
-class ProfileView(LoginRequiredMixin, DetailView):
+class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Profile
     template_name = "profiles/profile.html"
     context_object_name = "profile"
+
+    def test_func(self):
+        user = self.request.user
+        instance = self.get_object()
+
+        if user.is_superuser or instance.user == user:
+            return True
+
+        return False
 
     def get_object(self, queryset=None):
         if queryset is None:
@@ -34,11 +48,28 @@ class ProfileView(LoginRequiredMixin, DetailView):
             queryset, user__username=self.kwargs.get("username")
         )
 
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault("menu_item", "account")
+        kwargs.setdefault("submenu_item", "view_profile")
+        return super().get_context_data(**kwargs)
 
-class ProfileEditView(LoginRequiredMixin, UpdateView):
+
+class ProfileEditView(
+    LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView
+):
     template_name = "profiles/edit.html"
     model = Profile
     form_class = ProfileModelForm
+    success_message = "Profile successfully updated!"
+
+    def test_func(self):
+        user = self.request.user
+        instance = self.get_object()
+
+        if user.is_superuser or instance.user == user:
+            return True
+
+        return False
 
     def get_object(self, queryset=None):
         if queryset is None:
@@ -57,77 +88,98 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return url
 
     def get_context_data(self, **kwargs):
-        self.object = self.get_object()
-        context = super().get_context_data(**kwargs)
-        profile_object = self.get_object()
-        if not context.get("phone_number_formset"):
-            context["phone_number_formset"] = ProfilePhoneNumberInlineFormSet(
-                instance=profile_object
+        kwargs.setdefault("menu_item", "account")
+        kwargs.setdefault("submenu_item", "edit_profile")
+        return super().get_context_data(**kwargs)
+
+
+def send_otp_to_profile_phone_number_view(request):
+    user = request.user
+    profile = user.profile
+    if not profile.phone_number_is_verified:
+        phone_number = user.profile.phone_number
+        otp = generate_otp_for_receiver(phone_number)
+        success = send_otp_to_receiver_sms(phone_number, otp)
+        if success:
+            return redirect("profiles:verify-phone-number")
+        else:
+            messages.error(
+                request,
+                "OTP not sent for {phone_number}. try again".format(
+                    phone_number=phone_number
+                ),
             )
+            return redirect("dashboard:dashboard")
 
-        if not context.get("email_formset"):
-            context["email_formset"] = ProfileEmailInlineFormSet(
-                instance=profile_object
+    messages.error(request, "you alread verified your phone number!")
+    return redirect("dashboard:dashboard")
+
+
+def verify_profile_phone_number_view(request):
+    post = "POST"
+    profile = request.user.profile
+    if not profile.phone_number_is_verified:
+        if request.method == post:
+            form = ProfileVerifyOTPForReceiver(
+                request.POST, receiver=profile.phone_number
             )
+            if form.is_valid():
+                profile.phone_number_is_verified = True
+                profile.save()
+                messages.success(request, "Phone number verified successfully")
+                return redirect("dashboard:dashboard")
+        else:
+            form = ProfileVerifyOTPForReceiver()
 
-        if not context.get("address_formset"):
-            context["address_formset"] = ProfileAddressInlineFormSet(
-                instance=profile_object
+        context = {"form": form}
+
+        return render(request, "profiles/verify_otp.html", context=context)
+
+    messages.error(request, "you alread verified your phone number!")
+    return redirect("dashboard:dashboard")
+
+
+def send_otp_to_profile_email_view(request):
+    user = request.user
+    profile = user.profile
+    if not profile.email_is_verified:
+        email = user.profile.email
+        otp = generate_otp_for_receiver(email)
+        success = send_otp_to_receiver_email(email, otp)
+        if success:
+            return redirect("profiles:verify-email")
+        else:
+            messages.error(
+                request,
+                "OTP not sent for {email}. try again".format(
+                    email=email
+                ),
             )
+            return redirect("dashboard:dashboard")
 
-        if not context.get("profile_form"):
-            context["profile_form"] = ProfileModelForm(instance=profile_object)
-        return context
+    messages.error(request, "you alread verified your email!")
+    return redirect("dashboard:dashboard")
 
-    def post(self, request, *args, **kwargs):
-        profile = self.get_object()
-        phone_number_formset = ProfilePhoneNumberInlineFormSet(
-            request.POST,
-            instance=profile,
-        )
-        email_formset = ProfileEmailInlineFormSet(
-            request.POST,
-            instance=profile,
-        )
-        address_formset = ProfileAddressInlineFormSet(
-            request.POST,
-            instance=profile,
-        )
 
-        profile_form = ProfileModelForm(
-            data=request.POST,
-            files=request.FILES,
-            instance=profile,
-        )
-        if (
-            profile_form.is_valid()
-            and phone_number_formset.is_valid()
-            and email_formset.is_valid()
-            and address_formset.is_valid()
-        ):
-            return self.form_valid(
-                address_formset,
-                email_formset,
-                phone_number_formset,
-                profile_form,
+def verify_profile_email_view(request):
+    post = "POST"
+    profile = request.user.profile
+    if not profile.email_is_verified:
+        if request.method == post:
+            form = ProfileVerifyOTPForReceiver(
+                request.POST, receiver=profile.email
             )
+            if form.is_valid():
+                profile.email_is_verified = True
+                profile.save()
+                messages.success(request, "Email verified successfully")
+                return redirect("dashboard:dashboard")
+        else:
+            form = ProfileVerifyOTPForReceiver()
 
-        return self.form_invalid(
-            email_formset=email_formset,
-            phone_number_formset=phone_number_formset,
-            address_formset=address_formset,
-            profile_form=profile_form,
-        )
+        context = {"form": form}
 
-    def form_invalid(self, **kwargs):
-        return self.render_to_response(self.get_context_data(**kwargs))
+        return render(request, "profiles/verify_otp.html", context=context)
 
-    def form_valid(
-        self, address_formset, email_formset, phone_number_formset, profile_form
-    ):
-        self.object = profile_form.save()
-        email_formset.save()
-        phone_number_formset.save()
-        address_formset.save()
-
-        return HttpResponseRedirect(self.get_success_url())
+    messages.error(request, "you alread verified your email!")
+    return redirect("dashboard:dashboard")

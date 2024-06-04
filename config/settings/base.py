@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     "communications",
     "adminstration",
     "dashboard",
+    "public",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -382,7 +383,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 # Authentication
 LOGIN_URL = "authentication:login"
 LOGOUT_URL = "authentication:logout"
-# LOGIN_REDIRECT_URL = "profiles:profile"
+LOGIN_REDIRECT_URL = "dashboard:dashboard" # remember this have to be a path without any arguments
 LOGOUT_REDIRECT_URL = "authentication:login"
 # in order to define absoulte url for models
 # you have enter appname.model then like template below

@@ -1,0 +1,63 @@
+{% extends "authentication/base.html" %}
+{% load static %}
+{% block title %}Verify Profile Phone Number{% endblock title %}
+
+{% block content %}
+<div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-lg">
+        <h1 class="text-center text-2xl font-bold text-teal-600 sm:text-3xl">Verify Phone Number</h1>
+
+        <p class="mx-auto mt-4 max-w-md text-center text-gray-500">
+            Enter code sent for you.
+        </p>
+
+        <form action="." method="post" class="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="">
+                <div role="alert" class="rounded border-s-4 border-red-500 bg-red-50 p-4">
+                    <div class="flex items-center gap-2 text-red-800">
+                        <strong class="block font-medium"> Form Errors </strong>
+                    </div>
+                    {% if form.non_field_errors %}
+                        <p class="mt-2 text-sm text-red-700">
+                            {{ form.non_field_errors }}
+                        </p>
+                    {% else %}
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p class="mt-2 text-sm text-red-700">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% for field in form %}
+            <div class="">
+                <label for="{{field.auto_id}}" class="sr-only">{{field.label}}</label>
+                <div class="relative">
+                    <input
+                        type="{{field.field.widget.input_type}}"
+                        name="{{ field.name }}"
+                        class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                        id="{{ field.auto_id }}"
+                        placeholder="{{field.label}}"
+                        required
+                    />
+                </div>
+            </div>
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <button
+                type="submit"
+                class="block w-full rounded-lg bg-teal-600 px-5 py-3 text-sm font-medium text-white"
+            >
+            Submit
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

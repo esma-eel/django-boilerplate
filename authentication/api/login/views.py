@@ -4,10 +4,6 @@ from common.api.otp.serializers import (
     EmailOTPSerializer,
     PhoneOTPSerializer,
 )
-from profiles.api.mixins import (
-    ProfilePhoneNumberApiMixin,
-    ProfileEmailApiMixin,
-)
 from .serializers import (
     EmailPasswordSerializer,
     PhonePasswordSerializer,
@@ -18,47 +14,33 @@ from .mixins import (
 )
 
 
-class JWTCreatePhonePasswordApiView(
-    JWTCreateProfilePasswordApiMixin, ProfilePhoneNumberApiMixin, APIView
-):
+class JWTCreatePhonePasswordApiView(JWTCreateProfilePasswordApiMixin, APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
+    serializer = PhonePasswordSerializer
+    receiver_field = "phone_number"
+    profile_field = "phone_number"
 
-    def get_profile_serializer(self):
-        return PhonePasswordSerializer
 
-
-class JWTCreateEmailPasswordApiView(
-    JWTCreateProfilePasswordApiMixin, ProfileEmailApiMixin, APIView
-):
+class JWTCreateEmailPasswordApiView(JWTCreateProfilePasswordApiMixin, APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
+    serializer = EmailPasswordSerializer
+    receiver_field = "email"
+    profile_field = "email"
 
-    def get_profile_serializer(self):
-        return EmailPasswordSerializer
 
-
-class JWTCreatePhoneOTPApiView(
-    JWTCreateProfileFieldOTPApiMixin, ProfilePhoneNumberApiMixin, APIView
-):
+class JWTCreatePhoneOTPApiView(JWTCreateProfileFieldOTPApiMixin, APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
-
-    def get_profile_serializer(self):
-        return PhoneOTPSerializer
-
-    def get_profile_serializer_field_name(self):
-        return "receiver"
+    serializer = PhoneOTPSerializer
+    receiver_field = "receiver"
+    profile_field = "phone_number"
 
 
-class JWTCreateEmailOTPApiView(
-    JWTCreateProfileFieldOTPApiMixin, ProfileEmailApiMixin, APIView
-):
+class JWTCreateEmailOTPApiView(JWTCreateProfileFieldOTPApiMixin, APIView):
     allowed_methods = ["post"]
     http_method_names = ["post"]
-
-    def get_profile_serializer(self):
-        return EmailOTPSerializer
-
-    def get_profile_serializer_field_name(self):
-        return "receiver"
+    serializer = EmailOTPSerializer
+    receiver_field = "receiver"
+    profile_field = "email"

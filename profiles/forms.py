@@ -1,63 +1,25 @@
 from django import forms
-from .models import ProfilePhoneNumber, Profile, ProfileEmail, ProfileAddress
-
-
-class ProfilePhoneNumberModelForm(forms.ModelForm):
-    class Meta:
-        model = ProfilePhoneNumber
-        fields = ["profile", "phone_number", "is_primary"]
-
-
-class ProfileEmailModelForm(forms.ModelForm):
-    class Meta:
-        model = ProfileEmail
-        fields = ["profile", "email", "is_primary"]
-
-
-class ProfileAddressModelForm(forms.ModelForm):
-    class Meta:
-        model = ProfileAddress
-        fields = ["profile", "city", "address", "is_primary"]
+from common.utils.number_helpers import ir_phone_number
+from common.utils.otp_helpers import verify_input_otp_of_receiver
+from .models import Profile
 
 
 class ProfileModelForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ["name", "avatar"]
+        fields = ["name", "avatar", "email", "phone_number", "city", "address"]
 
 
-ProfilePhoneNumberInlineFormSet = forms.inlineformset_factory(
-    parent_model=Profile,
-    model=ProfilePhoneNumber,
-    form=ProfilePhoneNumberModelForm,
-    fields=ProfilePhoneNumberModelForm.Meta.fields,
-    exclude=["profile"],
-    extra=1,
-    max_num=3,
-    can_delete=True,
-    can_delete_extra=False,
-)
+class ProfileVerifyOTPForReceiver(forms.Form):
+    otp = forms.CharField(max_length=5, required=True)
 
-ProfileEmailInlineFormSet = forms.inlineformset_factory(
-    parent_model=Profile,
-    model=ProfileEmail,
-    form=ProfileEmailModelForm,
-    fields=ProfileEmailModelForm.Meta.fields,
-    exclude=["profile"],
-    extra=1,
-    max_num=3,
-    can_delete=True,
-    can_delete_extra=False,
-)
+    def __init__(self, *args, receiver=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reciever = receiver
 
-ProfileAddressInlineFormSet = forms.inlineformset_factory(
-    parent_model=Profile,
-    model=ProfileAddress,
-    form=ProfileAddressModelForm,
-    fields=ProfileAddressModelForm.Meta.fields,
-    exclude=["profile"],
-    extra=1,
-    max_num=3,
-    can_delete=True,
-    can_delete_extra=False,
-)
+    def clean_otp(self):
+        input = self.cleaned_data.get("otp")
+        if not verify_input_otp_of_receiver(self.reciever, input):
+            raise forms.ValidationError("Wrong otp code entered!")
+
+        return input

@@ -3,20 +3,19 @@ from rest_framework.response import Response
 
 from common.utils.otp_helpers import generate_otp_for_receiver
 
-from profiles.api.mixins import ProfileFieldApiMixin
 
+class RequestOTPApiMixin:
+    receiver_serializer = None
+    receiver_field = ""
 
-class RequestOTPApiMixin(ProfileFieldApiMixin):
-    def generate_otp(self):
-        receiver = self.get_profile_field_from_serializer()
+    def generate_otp(self, receiver):
         return generate_otp_for_receiver(receiver)
 
     def get_communication_function(self):
         return None
 
-    def send_otp(self):
-        otp_value = self.generate_otp()
-        receiver = self.get_profile_field_from_serializer()
+    def send_otp(self, receiver):
+        otp_value = self.generate_otp(receiver)
         communication_function = self.get_communication_function()
 
         if otp_value:
@@ -26,8 +25,10 @@ class RequestOTPApiMixin(ProfileFieldApiMixin):
         return False
 
     def post(self, request, *args, **kwargs):
-        self.validate_profile_serializer(request)
-        otp_sent = self.send_otp()
+        serializer = self.receiver_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        receiver = serializer.validated_data.get(self.receiver_field)
+        otp_sent = self.send_otp(receiver)
 
         if not otp_sent:
             return Response(
@@ -42,17 +43,12 @@ class RequestOTPApiMixin(ProfileFieldApiMixin):
 
 
 class VerifyOTPApiMixin:
-    def get_otp_serialzier(self):
-        return None
-
-    def validate_otp_serializer(self, request):
-        serializer = self.get_otp_serialzier()
-        self.otp_serializer = serializer(data=request.data)
-        self.otp_serializer.is_valid(raise_exception=True)
-        return self.otp_serializer
+    receiver_serializer = None
 
     def post(self, request, *args, **kwargs):
-        self.validate_otp_serializer(request)
+        serializer = self.receiver_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         return Response(
             data={"message": "OK!"},
             status=status.HTTP_200_OK,
