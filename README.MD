@@ -14,6 +14,8 @@ I found Cookiecutter Django too complicated so I created this.
 - MTV Tests: No
 - Tailwindcss version: 3.4.3
 - Used Hyperui components
+- Dockerized project with
+    - https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
 
 ## How to Setup
 
