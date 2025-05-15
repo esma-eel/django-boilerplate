@@ -1,0 +1,17 @@
+{% extends "authentication/base.html" %}
+{% block title %} Logged Out{% endblock title %}
+{% block content %}
+<div class="">
+    <div class="">
+        <h1 class="">Logged out</h1>
+        <div class="">
+            <a
+                href="{% url "index:index" %}"
+                class=""
+            >
+                OK! lets go home.            
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

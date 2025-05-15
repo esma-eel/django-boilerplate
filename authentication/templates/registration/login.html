@@ -1,0 +1,69 @@
+{% extends "authentication/base.html" %}
+{% load static %}
+{% block title %} Login {% endblock title %}
+
+{% block content %}
+<div class="">
+    <div class="">
+        <h1 class="">Explore the project</h1>
+
+        <p class="">
+            Login and go to dashboard to explore more
+        </p>
+
+        <form action="." method="post" class="">
+            {% csrf_token %}
+            <p class="">Sign in to your account</p>
+            {% if form.errors %}
+            <div class="">
+                <div role="alert" class="">
+                    <div class="">
+                        <strong class=""> Form Errors </strong>
+                    </div>
+                    {% if form.non_field_errors %}
+                        <p class="">
+                            {{ form.non_field_errors }}
+                        </p>
+                    {% else %}
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <p class="">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% for field in form %}
+            <div class="">
+                <label for="{{field.auto_id}}" class="">{{field.label}}</label>
+                <div class="relative">
+                    <input
+                        type="{{field.field.widget.input_type}}"
+                        name="{{ field.name }}"
+                        class=""
+                        id="{{ field.auto_id }}"
+                        placeholder="{{field.label}}"
+                        required
+                    />
+                </div>
+            </div>
+            {% endfor %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <button
+                type="submit"
+                class=""
+            >
+                Sign in
+            </button>
+
+            <p class="">
+                Forgot password ?
+                <a class="" href="{% url 'authentication:password-reset' %}">Reset it</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock content %}

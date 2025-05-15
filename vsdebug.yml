@@ -1,0 +1,43 @@
+# use this file to run dependency services in order to run
+# django project with vscode debugger
+version: '3.8'
+
+services:
+  redis_server:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    networks:
+      - vsdebug_network
+
+  postgres_db:
+    image: postgres:15
+    volumes:
+      - postgres_db_data:/var/lib/postgresql/data/
+    env_file:
+      - ./config/.envs/.env.default
+    ports:
+      - 5432:5432
+    networks:
+      - vsdebug_network
+  
+  mailpit_server:
+    image: axllent/mailpit
+    volumes:
+      - ./data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    env_file:
+      - ./config/.envs/.env.default
+    depends_on:
+      - redis_server
+    networks:
+      - vsdebug_network
+
+networks:
+  vsdebug_network:
+    driver: bridge
+
+volumes:
+  postgres_db_data:
